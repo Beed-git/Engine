@@ -1,5 +1,4 @@
-﻿using Engine.Configuration.Builders;
-using Engine.DebugGUI;
+﻿using Engine.DebugGUI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,7 +13,7 @@ public class MainGame
     private readonly GraphicsDeviceManager _graphicsDeviceManager;
 
     private ImGuiRenderer _imGuiRenderer;
-    private StageManager _stages;
+    private StageRepository _stageRepository;
     private Dependencies _dependencies;
 
     internal MainGame(ILoggerFactory loggerFactory, EngineCore core)
@@ -38,7 +37,8 @@ public class MainGame
         _imGuiRenderer = new ImGuiRenderer(this);
         _imGuiRenderer.RebuildFontAtlas();
 
-        (_stages, _dependencies) = _core.Initialize(_graphicsDeviceManager);
+        _dependencies = _core.BuildDependencies(_graphicsDeviceManager);
+        _stageRepository = _core.BuildStages(_dependencies);
 
         base.Initialize();
     }
@@ -49,12 +49,32 @@ public class MainGame
 
         _dependencies.Screen.Resize(1920, 1080);
 
-        var stage = _stages.Current;
-        foreach (var system in stage.UpdateSystems)
+        var stages = _dependencies.Stages;
+        var stage = stages.CurrentStage;
+        if (stages.Next is not null)
         {
-            system.Invoke(gameTime);
+            _logger.LogInformation("Destroying stage '{}'", stage.Name);
+            foreach (var destroy in stage.DestroySystems)
+            {
+                destroy.Invoke();
+            }
+
+            stage = _stageRepository.Create(stages.Next);
+            stages.CurrentStage = stage;
+            stages.Next = null;
+
+            _logger.LogInformation("Initializing stage '{}'", stage.Name);
+            foreach (var init in stage.InitSystems)
+            {
+                init.Invoke();
+            }
         }
-        stage.SceneManager.Update();
+
+        foreach (var update in stage.UpdateSystems)
+        {
+            update.Invoke(gameTime);
+        }
+        //stage.SceneManager.Update();
 
         base.Update(gameTime);
     }
@@ -63,14 +83,14 @@ public class MainGame
     {
         GraphicsDevice.Clear(_dependencies.Screen.BackgroundColor);
 
-        var stage = _stages.Current;
+        var stage = _dependencies.Stages.CurrentStage;
         foreach (var renderer in stage.RenderSystems)
         {
             renderer.Invoke(gameTime);
         }
 
         _imGuiRenderer.BeforeLayout(gameTime);
-        foreach (var gui in _stages.Current.DebugUIs)
+        foreach (var gui in stage.DebugUIs)
         {
             gui.Invoke(gameTime);
         }

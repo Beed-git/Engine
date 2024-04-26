@@ -1,5 +1,6 @@
 ﻿using Engine.Data;
 using Engine.Files;
+using Engine.Level;
 using Engine.Rendering;
 using FontStashSharp;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,7 @@ public class Dependencies
         FileSystem fileSystem,
         FontSystem fonts,
         Screen screen,
+        StageManager stages,
         TextureSystem textures)
     {
         LoggerFactory = loggerFactory;
@@ -23,6 +25,7 @@ public class Dependencies
         FileSystem = fileSystem;
         Fonts = fonts;
         Screen = screen;
+        Stages = stages;
         Textures = textures;
     }
 
@@ -31,6 +34,7 @@ public class Dependencies
     public FileSystem FileSystem { get; private init; }
     public FontSystem Fonts { get; private init; }
     public Screen Screen { get; private init; }
+    public StageManager Stages { get; private init; }
     public TextureSystem Textures { get; private init; }
 
     // NOTE: Leave graphics to be disposed by MainGame.

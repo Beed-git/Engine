@@ -5,16 +5,16 @@ using Engine.Serialization.Converters;
 using Engine.Serialization;
 using FontStashSharp;
 using Microsoft.Extensions.Logging;
-using Microsoft.Xna.Framework.Graphics;
 using System.Reflection;
 using System.Text.Json;
 using Engine.Configuration.Builders;
 using Microsoft.Xna.Framework;
 using Engine.ECS;
+using Engine.Level;
 
 namespace Engine.Configuration.Internal;
 
-public class EngineCore
+internal class EngineCore
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
@@ -31,15 +31,22 @@ public class EngineCore
         _stages = stages;
     }
 
-    public (StageManager, Dependencies) Initialize(GraphicsDeviceManager graphicsDeviceManager)
+    public Dependencies BuildDependencies(GraphicsDeviceManager graphicsDeviceManager)
     {
         _logger.LogInformation("Starting engine.");
 
         var registry = RegisterComponents();
-        var dependencies = BuildDependencies(graphicsDeviceManager, registry);
+        var dependencies = CreateDependencies(graphicsDeviceManager, registry);
 
-        var stages = new StageManager(_stages, dependencies, _stages.InitialStage);
-        return (stages, dependencies);
+        dependencies.Stages.Next = _stages.InitialStage;
+
+        return dependencies;
+    }
+
+    public StageRepository BuildStages(Dependencies dependencies)
+    {
+        var repo = new StageRepository(_loggerFactory, dependencies, _stages);
+        return repo;
     }
 
     private ComponentRegistry RegisterComponents()
@@ -64,7 +71,7 @@ public class EngineCore
         return registry;
     }
 
-    private Dependencies BuildDependencies(GraphicsDeviceManager graphicsDeviceManager, ComponentRegistry registry)
+    private Dependencies CreateDependencies(GraphicsDeviceManager graphicsDeviceManager, ComponentRegistry registry)
     {
         _logger.LogInformation("Building dependencies.");
         var serializer = BuildSerializer(registry);
@@ -73,6 +80,7 @@ public class EngineCore
         var screen = new Screen(graphicsDeviceManager);
         var fontSystem = BuildFontSystem(fileSystem);
         var textures = new TextureSystem(_loggerFactory, graphicsDeviceManager.GraphicsDevice, fileSystem);
+        var stages = new StageManager();
 
         var dependencies = new Dependencies(
             _loggerFactory,
@@ -80,6 +88,7 @@ public class EngineCore
             fileSystem,
             fontSystem,
             screen,
+            stages,
             textures);
 
         _logger.LogInformation("Finished building dependencies.");
