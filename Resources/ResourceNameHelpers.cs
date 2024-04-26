@@ -1,6 +1,4 @@
-﻿using Engine.Files;
-
-namespace Engine.Resources;
+﻿namespace Engine.Resources;
 
 public static class ResourceNameHelpers
 {
@@ -10,6 +8,11 @@ public static class ResourceNameHelpers
             .Trim()
             .ToLower();
 
+        if (normalized.StartsWith(Resource.Separator))
+        {
+            normalized = normalized[1..];
+        }
+
         ThrowIfInvalid(name);
 
         return normalized;
@@ -17,6 +20,11 @@ public static class ResourceNameHelpers
 
     private static void ThrowIfInvalid(string path)
     {
+        if (path.StartsWith(Resource.Separator))
+        {
+            throw new Exception($"Can't start with more than one separator ('{Resource.Separator}')");
+        }
+
         char lastChar = '\0';
         for (int i = 0; i < path.Length; i++)
         {

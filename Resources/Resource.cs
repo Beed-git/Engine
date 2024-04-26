@@ -17,9 +17,9 @@ public readonly struct Resource
         return Id.Contains(Separator);
     }
 
-    public readonly string GetFolder()
+    public readonly string GetDirectory()
     {
-        var index = Id.IndexOf(Separator);
+        var index = Id.LastIndexOf(Separator);
         if (index < 0)
         {
             return string.Empty;
@@ -27,6 +27,19 @@ public readonly struct Resource
 
         var folder = Id[..index];
         return folder;
+    }
+
+    public readonly string[] GetFolders()
+    {
+        var index = Id.LastIndexOf('/');
+        if (index < 0)
+        {
+            return [];
+        }
+
+        var dir = Id[..index];
+        var dirs = dir.Split(Separator);
+        return dirs;
     }
 
     public readonly string GetFile()

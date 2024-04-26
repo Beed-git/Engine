@@ -24,7 +24,7 @@ public class Database
 
     public Template? Get(Resource resource)
     {
-        var folder = resource.GetFolder();
+        var folder = resource.GetDirectory();
         if (folder == string.Empty)
         {
             throw new Exception($"Invalid resource. A data resource should have at least one '{Resource.Separator}' that is not the first character. (The file part.)");
