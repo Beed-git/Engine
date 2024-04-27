@@ -1,13 +1,14 @@
 ﻿using Engine.Configuration.Internal;
+using Engine.Files;
 using Microsoft.Extensions.Logging;
 
 namespace Engine.Level;
 
 public class StageManager
 {
-    internal StageManager()
+    internal StageManager(ILoggerFactory loggerFactory, FileSystem files)
     {
-        CurrentStage = Stage.Empty;
+        CurrentStage = Stage.CreateEmpty(loggerFactory, files);
     }
 
     public void ChangeStage(string name)

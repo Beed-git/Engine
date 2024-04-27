@@ -29,6 +29,8 @@ public class Dependencies
         Textures = textures;
     }
 
+    public SceneManager SceneManager { get; internal set; }
+
     public ILoggerFactory LoggerFactory { get; private init; }
     public Database Database { get; private init; }
     public FileSystem FileSystem { get; private init; }

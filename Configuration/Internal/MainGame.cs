@@ -1,4 +1,5 @@
 ﻿using Engine.DebugGUI;
+using Engine.Level;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -67,6 +68,25 @@ public class MainGame
             foreach (var init in stage.InitSystems)
             {
                 init.Invoke();
+            }
+        }
+
+        var scenes = stage.SceneManager;
+        if (scenes.Next is not null)
+        {
+            _logger.LogInformation("Unloading scene '{}'", scenes.Current.Name);
+            foreach (var unload in stage.OnSceneUnloadSystems)
+            {
+                unload.Invoke();
+            }
+
+            scenes.Current = scenes.Next;
+            scenes.Next = null;
+
+            _logger.LogInformation("Loading scene '{}'", scenes.Current.Name);
+            foreach (var load in stage.OnSceneLoadSystems)
+            {
+                load.Invoke();
             }
         }
 

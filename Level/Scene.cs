@@ -18,6 +18,8 @@ public class Scene
         Camera = camera;
     }
 
+    public static Scene Empty => new("empty", new TileMap(1, 1), World.Create(), new Camera2D());
+
     public string Name { get; private init; }
     public TileMap Tiles { get; private init; }
     public World Entities { get; private init; }

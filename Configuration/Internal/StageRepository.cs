@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Engine.Level;
+using Microsoft.Extensions.Logging;
 
 namespace Engine.Configuration.Internal;
 
@@ -26,11 +27,16 @@ internal class StageRepository
         }
 
         _logger.LogInformation("Creating stage '{}'", name);
+
+        var sceneManager = new SceneManager(_dependencies.LoggerFactory, _dependencies.FileSystem);
+        _dependencies.SceneManager = sceneManager;
+
         var config = new StageConfig(name);
         configure.Invoke(config, _dependencies);
 
         var stage = new Stage(
             name,
+            sceneManager,
             config.InitSystems,
             config.DestroySystems,
             config.OnSceneLoadSystems,

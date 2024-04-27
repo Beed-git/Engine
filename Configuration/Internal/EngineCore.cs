@@ -80,7 +80,7 @@ internal class EngineCore
         var screen = new Screen(graphicsDeviceManager);
         var fontSystem = BuildFontSystem(fileSystem);
         var textures = new TextureSystem(_loggerFactory, graphicsDeviceManager.GraphicsDevice, fileSystem);
-        var stages = new StageManager();
+        var stages = new StageManager(_loggerFactory, fileSystem);
 
         var dependencies = new Dependencies(
             _loggerFactory,
