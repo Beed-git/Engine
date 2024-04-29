@@ -13,7 +13,7 @@ public class TextureSystem
     private readonly Dictionary<Resource, Texture2D> _textures;
     private readonly FileSystem _files;
 
-    public TextureSystem(ILoggerFactory loggerFactory, GraphicsDevice graphics, FileSystem files)
+    internal TextureSystem(ILoggerFactory loggerFactory, GraphicsDevice graphics, FileSystem files)
     {
         Graphics = graphics;
         _logger = loggerFactory.CreateLogger<TextureSystem>();

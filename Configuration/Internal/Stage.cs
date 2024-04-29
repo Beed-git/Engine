@@ -13,11 +13,11 @@ internal class Stage
         SceneManager sceneManager,
         IEnumerable<Action> initSystems,
         IEnumerable<Action> destroySystems,
-        IEnumerable<Action> onSceneLoadSystems,
-        IEnumerable<Action> onSceneUnloadSystems,
-        IEnumerable<Action<GameTime>> updateSystems,
-        IEnumerable<Action<GameTime>> renderSystems,
-        IEnumerable<Action<GameTime>> debugUIs)
+        IEnumerable<Action<Scene>> onSceneLoadSystems,
+        IEnumerable<Action<Scene>> onSceneUnloadSystems,
+        IEnumerable<Action<Scene, GameTime>> updateSystems,
+        IEnumerable<Action<Scene, GameTime>> renderSystems,
+        IEnumerable<Action<Scene, GameTime>> debugUIs)
     {
         Name = name;
         SceneManager = sceneManager;
@@ -41,9 +41,9 @@ internal class Stage
     public SceneManager SceneManager { get; private init; }
     public IReadOnlyList<Action> InitSystems { get; private init; }
     public IReadOnlyList<Action> DestroySystems { get; private init; }
-    public IReadOnlyList<Action> OnSceneLoadSystems { get; private init; }
-    public IReadOnlyList<Action> OnSceneUnloadSystems { get; private init; }
-    public IReadOnlyList<Action<GameTime>> UpdateSystems { get; private init; }
-    public IReadOnlyList<Action<GameTime>> RenderSystems { get; private init; }
-    public IReadOnlyList<Action<GameTime>> DebugUIs { get; private init; }
+    public IReadOnlyList<Action<Scene>> OnSceneLoadSystems { get; private init; }
+    public IReadOnlyList<Action<Scene>> OnSceneUnloadSystems { get; private init; }
+    public IReadOnlyList<Action<Scene, GameTime>> UpdateSystems { get; private init; }
+    public IReadOnlyList<Action<Scene, GameTime>> RenderSystems { get; private init; }
+    public IReadOnlyList<Action<Scene, GameTime>> DebugUIs { get; private init; }
 }

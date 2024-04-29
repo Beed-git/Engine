@@ -77,7 +77,7 @@ public class MainGame
             _logger.LogInformation("Unloading scene '{}'", scenes.Current.Name);
             foreach (var unload in stage.OnSceneUnloadSystems)
             {
-                unload.Invoke();
+                unload.Invoke(scenes.Current);
             }
 
             scenes.Current = scenes.Next;
@@ -86,13 +86,15 @@ public class MainGame
             _logger.LogInformation("Loading scene '{}'", scenes.Current.Name);
             foreach (var load in stage.OnSceneLoadSystems)
             {
-                load.Invoke();
+                load.Invoke(scenes.Current);
             }
         }
 
+        scenes.Current.Camera.Update(GraphicsDevice);
+
         foreach (var update in stage.UpdateSystems)
         {
-            update.Invoke(gameTime);
+            update.Invoke(scenes.Current, gameTime);
         }
         //stage.SceneManager.Update();
 
@@ -104,15 +106,16 @@ public class MainGame
         GraphicsDevice.Clear(_dependencies.Screen.BackgroundColor);
 
         var stage = _dependencies.Stages.CurrentStage;
+        var scenes = stage.SceneManager;
         foreach (var renderer in stage.RenderSystems)
         {
-            renderer.Invoke(gameTime);
+            renderer.Invoke(scenes.Current, gameTime);
         }
 
         _imGuiRenderer.BeforeLayout(gameTime);
         foreach (var gui in stage.DebugUIs)
         {
-            gui.Invoke(gameTime);
+            gui.Invoke(scenes.Current, gameTime);
         }
         _imGuiRenderer.AfterLayout();
 

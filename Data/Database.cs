@@ -14,7 +14,7 @@ public class Database
 
     private readonly Dictionary<Resource, DatabaseFile> _data;
 
-    public Database(ILoggerFactory loggerFactory, FileSystem files)
+    internal Database(ILoggerFactory loggerFactory, FileSystem files)
     {
         _logger = loggerFactory.CreateLogger<Database>();
         _files = files;
