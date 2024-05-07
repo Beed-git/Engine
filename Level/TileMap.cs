@@ -1,50 +1,65 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Level;
 
 public class TileMap
+    : IEnumerable<KeyValuePair<Point, TileChunkMetadata>>
 {
-    public TileMap(int width, int height)
+    private readonly Dictionary<Point, TileChunkMetadata> _chunks;
+    private readonly IChunkGenerator _generator;
+
+    public TileMap(IChunkGenerator generator)
     {
-        Width = Math.Max(1, width);
-        Height = Math.Max(1, height);
-        Tiles = new Tile[Width * Height];
+        _generator = generator;
+        _chunks = [];
     }
 
-    public int Width { get; private init; }
-    public int Height { get; private init; }
-    public Tile[] Tiles { get; private init; }
-
-    public bool IsValid(Point point)
+    public TileChunkMetadata GetChunk(Point point)
     {
-        return IsValid(point, out _);
-    }
-
-    public Tile GetTile(Point point)
-    {
-        if (!IsValid(point, out var index))
+        if (!_chunks.TryGetValue(point, out var metadata))
         {
-            return Tile.None;
-        } 
+            var chunk = new TileChunk();
+            _generator.Generate(point, chunk);
 
-        var tile = Tiles[index];
-        return tile;
-    }
-
-    public void SetTile(Point point, Tile tile)
-    {
-        if (!IsValid(point, out var index))
-        {
-            return;
+            metadata = new TileChunkMetadata(chunk, TileChunkSource.Generated);
+            _chunks.Add(point, metadata);
         }
 
-        Tiles[index] = tile;
+        return metadata;
     }
 
-    private bool IsValid(Point point, out int index)
+    internal bool GetChunkIfExists(Point point, [MaybeNullWhen(false)] out TileChunk chunk)
     {
-        index = point.X + point.Y * Width;
-        var isValid = index >= 0 || index < Tiles.Length;
-        return isValid;
+        if (!_chunks.TryGetValue(point, out var metadata))
+        {
+            chunk = null;
+            return false;
+        }
+
+        chunk = metadata.Chunk;
+        return true;
+    }
+
+
+    public TileChunkMetadata? DeleteChunk(Point point)
+    {
+        if (!_chunks.Remove(point, out var metadata))
+        {
+            return null;
+        }
+
+        return metadata;
+    }
+
+    public IEnumerator<KeyValuePair<Point, TileChunkMetadata>> GetEnumerator()
+    {
+        return _chunks.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

@@ -22,10 +22,14 @@ public class TextureSystem
 
         WhiteSquare = new Texture2D(graphics, 1, 1);
         WhiteSquare.SetData([Color.White]);
+
+        MissingTexture = new Texture2D(graphics, 2, 2);
+        MissingTexture.SetData([Color.DarkViolet, Color.Black, Color.Black, Color.DarkViolet]);
     }
 
     public GraphicsDevice Graphics { get; private init; }
     public Texture2D WhiteSquare { get; private init; }
+    public Texture2D MissingTexture { get; private init; }
 
     public Texture2D Get(Resource resource)
     {
@@ -35,7 +39,7 @@ public class TextureSystem
         }
 
         _logger.LogWarning("Attempted to get texture resource '{}' but resource was not found.", resource);
-        return WhiteSquare;
+        return MissingTexture;
     }
 
     public void Dispose()
@@ -46,5 +50,6 @@ public class TextureSystem
         }
 
         WhiteSquare.Dispose();
+        MissingTexture.Dispose();
     }
 }
