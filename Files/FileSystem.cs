@@ -65,6 +65,20 @@ public class FileSystem
         return true;
     }
 
+    public bool TryOpenBinaryStream(Resource resource, string extension, [MaybeNullWhen(false)] out Stream stream)
+    {
+        var file = CreateFilePath(resource);
+        var path = Path.ChangeExtension(file, extension);
+        if (!File.Exists(path))
+        {
+            stream = null;
+            return false;
+        }
+
+        stream = File.OpenRead(path);
+        return true;
+    }
+
     private string CreateFilePath(Resource resource)
     {
         var split = resource.Id

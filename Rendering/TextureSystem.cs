@@ -3,6 +3,7 @@ using Engine.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StbImageSharp;
 
 namespace Engine.Rendering;
 
@@ -38,7 +39,19 @@ public class TextureSystem
             return texture;
         }
 
+        var path = $"{FileSystemSettings.TexturesFolder}{resource}";
+        if (_files.TryOpenBinaryStream(path, "png", out var stream))
+        {
+            _logger.LogInformation("Loading texture '{}'", resource);
+            using (stream)
+            {
+                texture = Texture2D.FromStream(Graphics, stream);
+                _textures.Add(resource, texture);
+                return texture;
+            }
+        }
         _logger.LogWarning("Attempted to get texture resource '{}' but resource was not found.", resource);
+
         return MissingTexture;
     }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Engine.Rendering;
+using Microsoft.Xna.Framework;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
@@ -10,11 +11,15 @@ public class TileMap
     private readonly Dictionary<Point, TileChunkMetadata> _chunks;
     private readonly IChunkGenerator _generator;
 
-    public TileMap(IChunkGenerator generator)
+    public TileMap(IChunkGenerator generator, TileSheet tileSheet)
     {
         _generator = generator;
         _chunks = [];
+
+        TileSheet = tileSheet;
     }
+
+    public TileSheet TileSheet { get; set; }
 
     public TileChunkMetadata GetChunk(Point point)
     {

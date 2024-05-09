@@ -16,4 +16,5 @@ public class FileSystemSettings
     public static string DataFolder => $"{AssetsFolder}data{Resource.Separator}";
     public static string FontsFolder => $"{AssetsFolder}fonts{Resource.Separator}";
     public static string ScenesFolder => $"{AssetsFolder}scenes{Resource.Separator}";
+    public static string TexturesFolder => $"{AssetsFolder}textures{Resource.Separator}";
 }

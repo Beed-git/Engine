@@ -22,7 +22,7 @@ public class SceneManager
         _cache = [];
 
         var generator = new EmptyChunkGenerator();
-        var map = new TileMap(generator);
+        var map = new TileMap(generator, TileSheet.Empty);
         _empty = Create("empty", map);
 
         Next = null;
