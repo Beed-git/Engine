@@ -17,14 +17,6 @@ public partial struct PositionComponent
 
     public readonly bool IsZero => X == 0 && Y == 0;
 
-    public readonly Point CalculateChunkPosition()
-    {
-        var x = (int)X >> TileChunk.TileBitCount;
-        var y = (int)Y >> TileChunk.TileBitCount;
-        var position = new Point(x, y);
-        return position;
-    }
-
     public readonly override bool Equals(object? obj)
     {
         return obj is PositionComponent component &&
