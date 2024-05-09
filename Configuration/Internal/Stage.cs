@@ -11,13 +11,13 @@ internal class Stage
     internal Stage(
         string name,
         SceneManager sceneManager,
-        IEnumerable<Action> initSystems,
-        IEnumerable<Action> destroySystems,
-        IEnumerable<Action<Scene>> onSceneLoadSystems,
-        IEnumerable<Action<Scene>> onSceneUnloadSystems,
-        IEnumerable<Action<Scene, GameTime>> updateSystems,
-        IEnumerable<Action<Scene, GameTime>> renderSystems,
-        IEnumerable<Action<Scene, GameTime>> debugUIs)
+        IEnumerable<KeyValuePair<string, Action>> initSystems,
+        IEnumerable<KeyValuePair<string, Action>> destroySystems,
+        IEnumerable<KeyValuePair<string, Action<Scene>>> onSceneLoadSystems,
+        IEnumerable<KeyValuePair<string, Action<Scene>>> onSceneUnloadSystems,
+        IEnumerable<KeyValuePair<string, Action<Scene, GameTime>>> updateSystems,
+        IEnumerable<KeyValuePair<string, Action<Scene, GameTime>>> renderSystems,
+        IEnumerable<KeyValuePair<string, Action<Scene, GameTime>>> debugUIs)
     {
         Name = name;
         SceneManager = sceneManager;
@@ -39,11 +39,11 @@ internal class Stage
 
     public string Name { get; private init; }
     public SceneManager SceneManager { get; private init; }
-    public IReadOnlyList<Action> InitSystems { get; private init; }
-    public IReadOnlyList<Action> DestroySystems { get; private init; }
-    public IReadOnlyList<Action<Scene>> OnSceneLoadSystems { get; private init; }
-    public IReadOnlyList<Action<Scene>> OnSceneUnloadSystems { get; private init; }
-    public IReadOnlyList<Action<Scene, GameTime>> UpdateSystems { get; private init; }
-    public IReadOnlyList<Action<Scene, GameTime>> RenderSystems { get; private init; }
-    public IReadOnlyList<Action<Scene, GameTime>> DebugUIs { get; private init; }
+    public IReadOnlyList<KeyValuePair<string, Action>> InitSystems { get; private init; }
+    public IReadOnlyList<KeyValuePair<string, Action>> DestroySystems { get; private init; }
+    public IReadOnlyList<KeyValuePair<string, Action<Scene>>> OnSceneLoadSystems { get; private init; }
+    public IReadOnlyList<KeyValuePair<string, Action<Scene>>> OnSceneUnloadSystems { get; private init; }
+    public IReadOnlyList<KeyValuePair<string, Action<Scene, GameTime>>> UpdateSystems { get; private init; }
+    public IReadOnlyList<KeyValuePair<string, Action<Scene, GameTime>>> RenderSystems { get; private init; }
+    public IReadOnlyList<KeyValuePair<string, Action<Scene, GameTime>>> DebugUIs { get; private init; }
 }

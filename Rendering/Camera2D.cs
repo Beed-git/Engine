@@ -47,7 +47,7 @@ public class Camera2D
         }
     }
 
-    public void Update(GraphicsDevice graphics)
+    internal void Update(GraphicsDevice graphics)
     {
         if (_isDirty)
         {

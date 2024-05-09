@@ -1,9 +1,4 @@
-﻿using Engine.ECS;
-using Engine.Serialization;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
-
-namespace Engine.Configuration.Internal;
+﻿namespace Engine.Configuration.Internal;
 
 internal class EngineSetupConfig
 {

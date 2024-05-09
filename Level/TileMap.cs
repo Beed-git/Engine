@@ -42,7 +42,6 @@ public class TileMap
         return true;
     }
 
-
     public TileChunkMetadata? DeleteChunk(Point point)
     {
         if (!_chunks.Remove(point, out var metadata))

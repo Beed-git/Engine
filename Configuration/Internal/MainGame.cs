@@ -1,5 +1,4 @@
 ﻿using Engine.DebugGUI;
-using Engine.Level;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,17 +13,17 @@ public class MainGame
     private readonly GraphicsDeviceManager _graphicsDeviceManager;
 
     private ImGuiRenderer _imGuiRenderer;
-    private StageRepository _stageRepository;
     private Dependencies _dependencies;
+    private SystemManager _systems;
 
     internal MainGame(ILoggerFactory loggerFactory, EngineCore core)
     {
         _logger = loggerFactory.CreateLogger<MainGame>();
         _core = core;
 
-        FNALoggerEXT.LogInfo = (msg) => _logger.LogInformation(msg);
-        FNALoggerEXT.LogWarn = (msg) => _logger.LogWarning(msg);
-        FNALoggerEXT.LogError = (msg) => _logger.LogError(msg);
+        FNALoggerEXT.LogInfo = (msg) => _logger.LogInformation("{}", msg);
+        FNALoggerEXT.LogWarn = (msg) => _logger.LogWarning("{}", msg);
+        FNALoggerEXT.LogError = (msg) => _logger.LogError("{}", msg);
 
         _graphicsDeviceManager = new GraphicsDeviceManager(this);
         _graphicsDeviceManager.PreferredBackBufferHeight = 1080;
@@ -39,7 +38,10 @@ public class MainGame
         _imGuiRenderer.RebuildFontAtlas();
 
         _dependencies = _core.BuildDependencies(_graphicsDeviceManager);
-        _stageRepository = _core.BuildStages(_dependencies);
+        _dependencies.Screen.Resize(1920, 1080);
+
+        var stageRepo = _core.BuildStages(_dependencies);
+        _systems = new SystemManager(_dependencies.LoggerFactory, stageRepo, _dependencies.Stages);
 
         base.Initialize();
     }
@@ -48,55 +50,11 @@ public class MainGame
     {
         IsMouseVisible = _dependencies.Screen.IsMouseVisible;
 
-        _dependencies.Screen.Resize(1920, 1080);
+        _systems.StageChange();
+        _systems.SceneChange();
 
-        var stages = _dependencies.Stages;
-        var stage = stages.CurrentStage;
-        if (stages.Next is not null)
-        {
-            _logger.LogInformation("Destroying stage '{}'", stage.Name);
-            foreach (var destroy in stage.DestroySystems)
-            {
-                destroy.Invoke();
-            }
-
-            stage = _stageRepository.Create(stages.Next);
-            stages.CurrentStage = stage;
-            stages.Next = null;
-
-            _logger.LogInformation("Initializing stage '{}'", stage.Name);
-            foreach (var init in stage.InitSystems)
-            {
-                init.Invoke();
-            }
-        }
-
-        var scenes = stage.SceneManager;
-        if (scenes.Next is not null)
-        {
-            _logger.LogInformation("Unloading scene '{}'", scenes.Current.Name);
-            foreach (var unload in stage.OnSceneUnloadSystems)
-            {
-                unload.Invoke(scenes.Current);
-            }
-
-            scenes.Current = scenes.Next;
-            scenes.Next = null;
-
-            _logger.LogInformation("Loading scene '{}'", scenes.Current.Name);
-            foreach (var load in stage.OnSceneLoadSystems)
-            {
-                load.Invoke(scenes.Current);
-            }
-        }
-
-        scenes.Current.Camera.Update(GraphicsDevice);
-
-        foreach (var update in stage.UpdateSystems)
-        {
-            update.Invoke(scenes.Current, gameTime);
-        }
-        //stage.SceneManager.Update();
+        _systems.Update(gameTime);
+        _dependencies.Stages.CurrentStage.SceneManager.Current.Camera.Update(GraphicsDevice);
 
         base.Update(gameTime);
     }
@@ -105,18 +63,10 @@ public class MainGame
     {
         GraphicsDevice.Clear(_dependencies.Screen.BackgroundColor);
 
-        var stage = _dependencies.Stages.CurrentStage;
-        var scenes = stage.SceneManager;
-        foreach (var renderer in stage.RenderSystems)
-        {
-            renderer.Invoke(scenes.Current, gameTime);
-        }
+        _systems.Render(gameTime);
 
         _imGuiRenderer.BeforeLayout(gameTime);
-        foreach (var gui in stage.DebugUIs)
-        {
-            gui.Invoke(scenes.Current, gameTime);
-        }
+        _systems.ImGuiRender(gameTime);
         _imGuiRenderer.AfterLayout();
 
         base.Draw(gameTime);
