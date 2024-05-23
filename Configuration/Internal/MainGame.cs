@@ -1,4 +1,5 @@
 ﻿using Engine.DebugGUI;
+using Engine.Util;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,7 +54,9 @@ public class MainGame
         _systems.StageChange();
         _systems.SceneChange();
 
+        DirectInput.Update();
         _systems.Update(gameTime);
+        _dependencies.Events.RunEvents(_dependencies.Stages.CurrentStage.SceneManager.Current);
         _dependencies.Stages.CurrentStage.SceneManager.Current.Camera.Update(GraphicsDevice);
 
         base.Update(gameTime);

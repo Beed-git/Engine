@@ -20,6 +20,10 @@ public class TileMap
     }
 
     public TileSheet TileSheet { get; set; }
+    public TileChunkMetadata this[Point point]
+    {
+        get => GetChunk(point);
+    }
 
     public TileChunkMetadata GetChunk(Point point)
     {
@@ -35,7 +39,7 @@ public class TileMap
         return metadata;
     }
 
-    internal bool GetChunkIfExists(Point point, [MaybeNullWhen(false)] out TileChunk chunk)
+    public bool GetChunkIfLoaded(Point point, [MaybeNullWhen(false)] out TileChunk chunk)
     {
         if (!_chunks.TryGetValue(point, out var metadata))
         {

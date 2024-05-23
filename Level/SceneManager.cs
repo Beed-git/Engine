@@ -32,6 +32,12 @@ public class SceneManager
     public Scene? Next { get; internal set; }
     public Scene Current { get; internal set; }
 
+    public Scene Create(Resource name)
+    {
+        var tiles = new TileMap(new EmptyChunkGenerator(), TileSheet.Empty);
+        return Create(name, tiles);
+    }
+
     public Scene Create(Resource name, TileMap tiles)
     {
         if (_cache.TryGetValue(name, out var scene))

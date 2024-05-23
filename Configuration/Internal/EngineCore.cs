@@ -35,8 +35,8 @@ internal class EngineCore
     {
         _logger.LogInformation("Starting engine.");
 
-        var registry = RegisterComponents();
-        var dependencies = CreateDependencies(graphicsDeviceManager, registry);
+        var components = RegisterComponents();
+        var dependencies = CreateDependencies(graphicsDeviceManager, components);
 
         dependencies.Stages.Next = _stages.InitialStage;
 
@@ -71,10 +71,10 @@ internal class EngineCore
         return registry;
     }
 
-    private Dependencies CreateDependencies(GraphicsDeviceManager graphicsDeviceManager, ComponentRegistry registry)
+    private Dependencies CreateDependencies(GraphicsDeviceManager graphicsDeviceManager, ComponentRegistry components)
     {
         _logger.LogInformation("Building dependencies.");
-        var serializer = BuildSerializer(registry);
+        var serializer = BuildSerializer(components);
         var fileSystem = BuildFileSystem(serializer);
         var database = new Database(_loggerFactory, fileSystem);
         var screen = new Screen(graphicsDeviceManager);

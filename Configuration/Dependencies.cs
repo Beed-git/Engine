@@ -1,10 +1,10 @@
 ﻿using Engine.Data;
+using Engine.ECS;
 using Engine.Files;
 using Engine.Level;
 using Engine.Rendering;
 using FontStashSharp;
 using Microsoft.Extensions.Logging;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine.Configuration;
 
@@ -30,6 +30,7 @@ public class Dependencies
     }
 
     public SceneManager SceneManager { get; internal set; }
+    public EventSystem Events { get; internal set; }
 
     public ILoggerFactory LoggerFactory { get; private init; }
     public Database Database { get; private init; }

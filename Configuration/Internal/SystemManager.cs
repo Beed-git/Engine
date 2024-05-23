@@ -1,4 +1,6 @@
-﻿using Engine.Level;
+﻿using Engine.ECS;
+using Engine.ECS.Events;
+using Engine.Level;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 
@@ -26,29 +28,17 @@ internal class SystemManager
             return;
         }
 
-        var stage = _stages.CurrentStage; 
-        
+        var stage = _stages.CurrentStage;
+
         _logger.LogInformation("Destroying stage '{}'", stage.Name);
-        var profiler = _systemProfiler.StartProfiling($"{nameof(StageChange)}.Destroy");
-        foreach (var (name, destroy) in stage.DestroySystems)
-        {
-            destroy.Invoke();
-            profiler.Record(name);
-        }
-        profiler.Stop();
+        stage.EventRegistry.Invoke<StageDestructEvent>(stage.SceneManager.Current);
 
         stage = _repository.Create(_stages.Next);
         _stages.CurrentStage = stage;
         _stages.Next = null;
 
         _logger.LogInformation("Initializing stage '{}'", stage.Name);
-        profiler = _systemProfiler.StartProfiling($"{nameof(StageChange)}.Initialize");
-        foreach (var (name, init) in stage.InitSystems)
-        {
-            init.Invoke();
-            profiler.Record(name);
-        }
-        profiler.Stop();
+        stage.EventRegistry.Invoke<StageInitialiseEvent>(stage.SceneManager.Current);
     }
 
     public void SceneChange()
@@ -61,25 +51,14 @@ internal class SystemManager
         }
 
         _logger.LogInformation("Unloading scene '{}'", scenes.Current.Name);
-        var profiler = _systemProfiler.StartProfiling($"{nameof(SceneChange)}.Unload");
-        foreach (var (name, unload) in stage.OnSceneUnloadSystems)
-        {
-            unload.Invoke(scenes.Current);
-            profiler.Record(name);
-        }
-        profiler.Stop();
+        stage.EventRegistry.Invoke<SceneUnloadEvent>(scenes.Current);
 
         scenes.Current = scenes.Next;
         scenes.Next = null;
 
         _logger.LogInformation("Loading scene '{}'", scenes.Current.Name);
-        profiler = _systemProfiler.StartProfiling($"{nameof(SceneChange)}.Load");
-        foreach (var (name, load) in stage.OnSceneLoadSystems)
-        {
-            load.Invoke(scenes.Current);
-            profiler.Record(name);
-        }
-        profiler.Stop();
+        stage.EventRegistry.Invoke<SceneLoadEvent>(scenes.Current);
+
     }
 
     public void Update(GameTime gameTime)
