@@ -1,11 +1,9 @@
-﻿using Engine.ECS;
-using Engine.Files;
+﻿using Engine.Files;
 using Engine.Level;
 using Microsoft.Extensions.Logging;
-using Microsoft.Xna.Framework;
 using System.Collections.Immutable;
 
-namespace Engine.Configuration.Internal;
+namespace Engine.Core.Internal;
 
 internal class Stage
 {
@@ -13,9 +11,9 @@ internal class Stage
         string name,
         SceneManager sceneManager,
         EventRegistry eventRegistry,
-        IEnumerable<KeyValuePair<string, Action<Scene, GameTime>>> updateSystems,
-        IEnumerable<KeyValuePair<string, Action<Scene, GameTime>>> renderSystems,
-        IEnumerable<KeyValuePair<string, Action<Scene, GameTime>>> debugUIs)
+        IEnumerable<FrameUpdateSystem> updateSystems,
+        IEnumerable<FrameUpdateSystem> renderSystems,
+        IEnumerable<FrameUpdateSystem> debugUIs)
     {
         Name = name;
         SceneManager = sceneManager;
@@ -36,7 +34,7 @@ internal class Stage
     public string Name { get; private init; }
     internal SceneManager SceneManager { get; private init; }
     internal EventRegistry EventRegistry { get; private init; }
-    internal IReadOnlyList<KeyValuePair<string, Action<Scene, GameTime>>> UpdateSystems { get; private init; }
-    internal IReadOnlyList<KeyValuePair<string, Action<Scene, GameTime>>> RenderSystems { get; private init; }
-    internal IReadOnlyList<KeyValuePair<string, Action<Scene, GameTime>>> DebugUIs { get; private init; }
+    internal IReadOnlyList<FrameUpdateSystem> UpdateSystems { get; private init; }
+    internal IReadOnlyList<FrameUpdateSystem> RenderSystems { get; private init; }
+    internal IReadOnlyList<FrameUpdateSystem> DebugUIs { get; private init; }
 }

@@ -1,8 +1,9 @@
-﻿using Engine.ECS;
+﻿using Engine.Core.Config;
+using Engine.ECS;
 using Engine.Level;
 using Microsoft.Extensions.Logging;
 
-namespace Engine.Configuration.Internal;
+namespace Engine.Core.Internal;
 
 internal class StageRepository
 {

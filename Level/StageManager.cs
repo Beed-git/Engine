@@ -1,4 +1,4 @@
-﻿using Engine.Configuration.Internal;
+﻿using Engine.Core.Internal;
 using Engine.Files;
 using Microsoft.Extensions.Logging;
 

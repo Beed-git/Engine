@@ -1,4 +1,5 @@
-﻿using Engine.Level;
+﻿using Engine.Core.Internal;
+using Engine.Level;
 
 namespace Engine.ECS;
 
@@ -11,6 +12,12 @@ public class EventSystem
     {
         _events = events;
         _queue = [];
+    }
+
+    public void Queue<T>()
+        where T : struct
+    {
+        Queue<T>(default);
     }
 
     public void Queue<T>(T payload)

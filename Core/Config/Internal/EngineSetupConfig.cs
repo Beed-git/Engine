@@ -1,4 +1,4 @@
-﻿namespace Engine.Configuration.Internal;
+﻿namespace Engine.Core.Config.Internal;
 
 internal class EngineSetupConfig
 {

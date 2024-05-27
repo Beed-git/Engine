@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Engine.Configuration;
+namespace Engine.Core.Config;
 
 public class SerializationConfig
 {

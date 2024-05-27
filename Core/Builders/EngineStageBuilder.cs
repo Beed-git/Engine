@@ -1,7 +1,9 @@
-﻿using Engine.Configuration.Internal;
+﻿using Engine.Core.Config;
+using Engine.Core.Config.Internal;
+using Engine.Core.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Engine.Configuration.Builders;
+namespace Engine.Core.Builders;
 
 public class EngineStageBuilder
 {

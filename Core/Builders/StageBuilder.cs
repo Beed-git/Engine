@@ -1,6 +1,7 @@
 ﻿using System.Collections;
+using Engine.Core.Config;
 
-namespace Engine.Configuration.Builders;
+namespace Engine.Core.Builders;
 
 public class StageBuilder
     : IEnumerable<KeyValuePair<string, Action<StageConfig, Dependencies>>>

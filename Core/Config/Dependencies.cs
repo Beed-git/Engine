@@ -6,7 +6,7 @@ using Engine.Rendering;
 using FontStashSharp;
 using Microsoft.Extensions.Logging;
 
-namespace Engine.Configuration;
+namespace Engine.Core.Config;
 
 public class Dependencies
     : IDisposable

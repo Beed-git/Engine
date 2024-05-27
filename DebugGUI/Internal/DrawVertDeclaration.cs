@@ -1,9 +1,9 @@
 ﻿using ImGuiNET;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Engine.DebugGUI;
+namespace Engine.DebugGUI.Internal;
 
-public static class DrawVertDeclaration
+internal static class DrawVertDeclaration
 {
     public static readonly VertexDeclaration Declaration;
     public static readonly int Size;

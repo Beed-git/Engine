@@ -1,4 +1,4 @@
-﻿namespace Engine.Configuration;
+﻿namespace Engine.Core.Config;
 
 [Flags]
 public enum GameSystemType

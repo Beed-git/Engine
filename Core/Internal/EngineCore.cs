@@ -7,12 +7,14 @@ using FontStashSharp;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Text.Json;
-using Engine.Configuration.Builders;
 using Microsoft.Xna.Framework;
 using Engine.ECS;
 using Engine.Level;
+using Engine.Core.Config;
+using Engine.Core.Builders;
+using Engine.Core.Config.Internal;
 
-namespace Engine.Configuration.Internal;
+namespace Engine.Core.Internal;
 
 internal class EngineCore
 {

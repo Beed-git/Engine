@@ -1,4 +1,4 @@
-﻿namespace Engine.Configuration;
+﻿namespace Engine.Core.Config;
 
 public class FileSystemConfig
 {

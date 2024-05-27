@@ -1,10 +1,11 @@
-﻿using Engine.DebugGUI;
+﻿using Engine.Core.Config;
+using Engine.DebugGUI.Internal;
 using Engine.Util;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Engine.Configuration.Internal;
+namespace Engine.Core.Internal;
 
 public class MainGame
     : Game

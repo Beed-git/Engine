@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using System.Runtime.InteropServices;
 
-namespace Engine.DebugGUI;
+namespace Engine.DebugGUI.Internal;
 
-public class ImGuiRenderer
+internal class ImGuiRenderer
 {
     private readonly Game _game;
 
@@ -25,17 +25,17 @@ public class ImGuiRenderer
     private int _indexBufferSize;
 
     // Textures
-    private readonly Dictionary<IntPtr, Texture2D> _loadedTextures;
+    private readonly Dictionary<nint, Texture2D> _loadedTextures;
 
     private int _textureId;
-    private IntPtr? _fontTextureId;
+    private nint? _fontTextureId;
 
     // Input
     private int _scrollWheelValue;
     private const float WHEEL_DELTA = 120;
     private readonly Keys[] _allKeys = Enum.GetValues<Keys>();
 
-    public ImGuiRenderer(Game game)
+    internal ImGuiRenderer(Game game)
     {
         var context = ImGui.CreateContext();
         ImGui.SetCurrentContext(context);
@@ -71,9 +71,9 @@ public class ImGuiRenderer
 
         // Copy the data to a managed array
         var pixels = new byte[width * height * bytesPerPixel];
-        unsafe 
+        unsafe
         {
-            Marshal.Copy(new IntPtr(pixelData), pixels, 0, pixels.Length); 
+            Marshal.Copy(new nint(pixelData), pixels, 0, pixels.Length);
         }
 
         // Create and register the texture as an XNA texture
@@ -94,9 +94,9 @@ public class ImGuiRenderer
     /// <summary>
     /// Creates a pointer to a texture, which can be passed through ImGui calls such as <see cref="ImGui.Image" />. That pointer is then used by ImGui to let us know what texture to draw
     /// </summary>
-    public virtual IntPtr BindTexture(Texture2D texture)
+    public virtual nint BindTexture(Texture2D texture)
     {
-        var id = new IntPtr(_textureId++);
+        var id = new nint(_textureId++);
 
         _loadedTextures.Add(id, texture);
 
@@ -106,7 +106,7 @@ public class ImGuiRenderer
     /// <summary>
     /// Removes a previously created texture pointer, releasing its reference and allowing it to be deallocated
     /// </summary>
-    public virtual void UnbindTexture(IntPtr textureId)
+    public virtual void UnbindTexture(nint textureId)
     {
         _loadedTextures.Remove(textureId);
     }

@@ -1,24 +1,25 @@
-﻿using Engine.ECS;
-using Engine.ECS.Events;
+﻿using Engine.ECS.Events;
 using Engine.Level;
+using ImGuiNET;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
+using System.Diagnostics;
 
-namespace Engine.Configuration.Internal;
+namespace Engine.Core.Internal;
 
 internal class SystemManager
 {
     private readonly ILogger _logger;
     private readonly StageRepository _repository;
     private readonly StageManager _stages;
-    private readonly SystemProfiler _systemProfiler;
+    private readonly Stopwatch _profiler;
 
     internal SystemManager(ILoggerFactory loggerFactory, StageRepository repository, StageManager stages)
     {
         _logger = loggerFactory.CreateLogger<SystemManager>();
         _repository = repository;
         _stages = stages;
-        _systemProfiler = new SystemProfiler();
+        _profiler = new Stopwatch();
     }
 
     public void StageChange()
@@ -58,50 +59,38 @@ internal class SystemManager
 
         _logger.LogInformation("Loading scene '{}'", scenes.Current.Name);
         stage.EventRegistry.Invoke<SceneLoadEvent>(scenes.Current);
-
     }
 
     public void Update(GameTime gameTime)
     {
         var stage = _stages.CurrentStage;
-        var scenes = stage.SceneManager;
-
-        var profile = _systemProfiler.StartProfiling(nameof(Update));
-        foreach (var (name, update) in stage.UpdateSystems)
-        {
-            update.Invoke(scenes.Current, gameTime);
-            profile.Record(name);
-        }
-        profile.Stop();
+        FrameUpdate(stage.UpdateSystems, gameTime);
     }
 
     public void Render(GameTime gameTime)
     {
         var stage = _stages.CurrentStage;
-        var scenes = stage.SceneManager;
-
-        var profile = _systemProfiler.StartProfiling(nameof(Render));
-        foreach (var (name, renderer) in stage.RenderSystems)
-        {
-            renderer.Invoke(scenes.Current, gameTime);
-            profile.Record(name);
-        }
-        profile.Stop();
+        FrameUpdate(stage.RenderSystems, gameTime);
     }
 
     public void ImGuiRender(GameTime gameTime)
     {
         var stage = _stages.CurrentStage;
-        var scenes = stage.SceneManager;
+        FrameUpdate(stage.DebugUIs, gameTime);
+    }
 
-        var profile = _systemProfiler.StartProfiling(nameof(ImGuiRender));
-        foreach (var (name, gui) in stage.DebugUIs)
+    private void FrameUpdate(IEnumerable<FrameUpdateSystem> systems, GameTime gameTime)
+    {
+        var current = _stages.CurrentStage.SceneManager.Current;
+        foreach (var (name, system, stats) in systems)
         {
-            gui.Invoke(scenes.Current, gameTime);
-            profile.Record(name);
-        }
-        profile.Stop();
+            _profiler.Start();
 
-        _systemProfiler.Render();
+            system.Invoke(current, gameTime);
+
+            _profiler.Stop();
+            stats.Record(_profiler.Elapsed);
+            _profiler.Reset();
+        }
     }
 }
