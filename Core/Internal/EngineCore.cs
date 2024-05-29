@@ -1,36 +1,23 @@
 ﻿using Engine.Data;
-using Engine.Files;
 using Engine.Rendering;
-using Engine.Serialization.Converters;
 using Engine.Serialization;
-using FontStashSharp;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
-using System.Text.Json;
 using Microsoft.Xna.Framework;
-using Engine.ECS;
 using Engine.Level;
 using Engine.Core.Config;
-using Engine.Core.Builders;
-using Engine.Core.Config.Internal;
+using Engine.Core.Config.Factories;
 
 namespace Engine.Core.Internal;
 
 internal class EngineCore
 {
     private readonly ILogger _logger;
-    private readonly ILoggerFactory _loggerFactory;
-    private readonly EngineSetupConfig _config;
-    private readonly StageBuilder _stages;
+    private readonly EngineConfig _config;
 
-    private const string FontExtension = "ttf";
-
-    internal EngineCore(ILoggerFactory loggerFactory, EngineSetupConfig config, StageBuilder stages)
+    public EngineCore(EngineConfig config)
     {
-        _logger = loggerFactory.CreateLogger<EngineCore>();
-        _loggerFactory = loggerFactory;
+        _logger = config.LoggerFactory.CreateLogger<EngineCore>();
         _config = config;
-        _stages = stages;
     }
 
     public Dependencies BuildDependencies(GraphicsDeviceManager graphicsDeviceManager)
@@ -40,14 +27,14 @@ internal class EngineCore
         var components = RegisterComponents();
         var dependencies = CreateDependencies(graphicsDeviceManager, components);
 
-        dependencies.Stages.Next = _stages.InitialStage;
+        dependencies.Stages.Next = _config.StageCollectionConfig.InitialStageName;
 
         return dependencies;
     }
 
-    public StageRepository BuildStages(Dependencies dependencies)
+    internal StageRepository BuildStages(Dependencies dependencies)
     {
-        var repo = new StageRepository(_loggerFactory, dependencies, _stages);
+        var repo = new StageRepository(_config.LoggerFactory, dependencies, _config.StageCollectionConfig.StageBuilders);
         return repo;
     }
 
@@ -55,19 +42,7 @@ internal class EngineCore
     {
         _logger.LogInformation("Registering components.");
 
-        var registry = new ComponentRegistry(_loggerFactory);
-        var config = new ComponentConfig();
-        if (_config.ComponentConfig is null)
-        {
-            // TODO: Ensure components are registered in builders.
-            throw new Exception("Components must be configured.");
-        }
-        _config.ComponentConfig.Invoke(config);
-
-        if (config.IsAutoRegistered)
-        {
-            AutoRegisterComponents(registry);
-        }
+        var registry = ComponentRegistryFactory.Create(_config.ComponentConfig, _config.LoggerFactory);
 
         _logger.LogInformation("Finished registering components.");
         return registry;
@@ -76,16 +51,16 @@ internal class EngineCore
     private Dependencies CreateDependencies(GraphicsDeviceManager graphicsDeviceManager, ComponentRegistry components)
     {
         _logger.LogInformation("Building dependencies.");
-        var serializer = BuildSerializer(components);
-        var fileSystem = BuildFileSystem(serializer);
-        var database = new Database(_loggerFactory, fileSystem);
+        var serializer = SerializerFactory.Create(_config.SerializationConfig, components);
+        var fileSystem = FileSystemFactory.Create(_config.FileSystemConfig, serializer);
+        var database = new Database(_config.LoggerFactory, fileSystem);
         var screen = new Screen(graphicsDeviceManager);
-        var fontSystem = BuildFontSystem(fileSystem);
-        var textures = new TextureSystem(_loggerFactory, graphicsDeviceManager.GraphicsDevice, fileSystem);
-        var stages = new StageManager(_loggerFactory, fileSystem);
+        var fontSystem = FontSystemFactory.Create(_config.FontConfig, fileSystem);
+        var textures = new TextureSystem(_config.LoggerFactory, graphicsDeviceManager.GraphicsDevice, fileSystem);
+        var stages = new StageManager(_config.LoggerFactory, fileSystem);
 
         var dependencies = new Dependencies(
-            _loggerFactory,
+            _config.LoggerFactory,
             database,
             fileSystem,
             fontSystem,
@@ -95,104 +70,6 @@ internal class EngineCore
 
         _logger.LogInformation("Finished building dependencies.");
         return dependencies;
-    }
-
-    // Helpers
-
-    private Serializer BuildSerializer(ComponentRegistry registry)
-    {
-        var jsonSerializerOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            IncludeFields = true,
-            IgnoreReadOnlyFields = true,
-            IgnoreReadOnlyProperties = true,
-            PropertyNameCaseInsensitive = true,
-            AllowTrailingCommas = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
-
-        var config = new SerializationConfig();
-        _config.SerializationConfiguration?.Invoke(config);
-
-        foreach (var converter in config.Converters)
-        {
-            jsonSerializerOptions.Converters.Add(converter);
-        }
-
-        if (config.UseDefaultConverters)
-        {
-            jsonSerializerOptions.Converters.Add(new TemplateConverter(registry));
-        }
-
-        var serializer = new Serializer(jsonSerializerOptions);
-        return serializer;
-    }
-
-    private FileSystem BuildFileSystem(Serializer serializer)
-    {
-        var config = new FileSystemConfig();
-        _config.FileSystemConfig?.Invoke(config);
-
-        var root = config.Root
-            ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
-            ?? throw new Exception("Root asset directory was not set and reflection fallback failed.");
-
-        var fileSystemSettings = new FileSystemSettings(root);
-
-        var fileSystem = new FileSystem(fileSystemSettings, serializer);
-        return fileSystem;
-    }
-
-    private FontSystem BuildFontSystem(FileSystem files)
-    {
-        var config = new FontConfig();
-        _config.FontConfiguration?.Invoke(config);
-
-        var fontPath = config.OverrideFallbackFont
-            ?? throw new NotImplementedException("Default font has not been added.");
-
-        var resource = $"{FileSystemSettings.FontsFolder}{fontPath}";
-        if (!files.TryReadBinary(resource, FontExtension, out var font))
-        {
-            throw new Exception($"Failed to find font resource at path '{resource}'");
-        }
-
-        var fontSystem = new FontSystem();
-        fontSystem.AddFont(font);
-
-        return fontSystem;
-    }
-
-    private static void AutoRegisterComponents(ComponentRegistry registry)
-    {
-        const string ComponentEnding = "Component";
-
-        var types =
-                Assembly.GetExecutingAssembly()
-                    .GetTypes()
-                    .Where(t => t.IsDefined(typeof(ComponentAttribute)))
-            .Concat(
-                Assembly.GetEntryAssembly()?
-                    .GetTypes()
-                    .Where(t => t.IsDefined(typeof(ComponentAttribute))) ?? []);
-
-        foreach (var type in types)
-        {
-            var name = type.Name;
-            if (name.EndsWith(ComponentEnding, StringComparison.OrdinalIgnoreCase))
-            {
-                name = name[..^ComponentEnding.Length];
-            }
-
-            if (name.Length == 0)
-            {
-                throw new Exception($"Generated name is invalid for struct '{type}' (name is '{type}')");
-            }
-
-            name = char.ToLower(name[0]) + name[1..];
-            registry.Register(type, name);
-        }
     }
 }
 

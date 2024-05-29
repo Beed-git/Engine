@@ -2,5 +2,10 @@
 
 public class FileSystemConfig
 {
-    public string Root { get; private init; }
+    public FileSystemConfig()
+    {
+        Root = null;
+    }
+
+    public string? Root { get; set; }
 }

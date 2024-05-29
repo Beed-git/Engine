@@ -7,10 +7,5 @@ public class ComponentConfig
         IsAutoRegistered = false;
     }
 
-    internal bool IsAutoRegistered { get; private set; }
-
-    public void AutoRegister()
-    {
-        IsAutoRegistered = true;
-    }
+    public bool IsAutoRegistered { get; set; }
 }

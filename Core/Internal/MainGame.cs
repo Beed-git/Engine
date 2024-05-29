@@ -18,10 +18,10 @@ public class MainGame
     private Dependencies _dependencies;
     private SystemManager _systems;
 
-    internal MainGame(ILoggerFactory loggerFactory, EngineCore core)
+    public MainGame(EngineConfig config)
     {
-        _logger = loggerFactory.CreateLogger<MainGame>();
-        _core = core;
+        _logger = config.LoggerFactory.CreateLogger<MainGame>();
+        _core = new EngineCore(config);
 
         FNALoggerEXT.LogInfo = (msg) => _logger.LogInformation("{}", msg);
         FNALoggerEXT.LogWarn = (msg) => _logger.LogWarning("{}", msg);
