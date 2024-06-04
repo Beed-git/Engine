@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Engine.Core.Internal;
 
-internal class EventRegistry
+public class EventRegistry
 {
     private readonly ILogger<EventRegistry> _logger;
     private readonly Dictionary<Type, IEventRunner> _runners;
 
-    public EventRegistry(ILoggerFactory loggerFactory)
+    internal EventRegistry(ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger<EventRegistry>();
         _runners = [];
@@ -16,7 +16,7 @@ internal class EventRegistry
 
     internal IEnumerable<KeyValuePair<Type, IEventRunner>> Runners => _runners;
 
-    internal void RegisterEventHandler<T>(string name, Action<Scene, T> action)
+    public void RegisterEventHandler<T>(string name, Action<Scene, T> action)
         where T : struct
     {
         var runner = GetRunner<T>();

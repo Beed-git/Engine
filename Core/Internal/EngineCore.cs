@@ -1,6 +1,5 @@
 ﻿using Engine.Data;
 using Engine.Rendering;
-using Engine.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using Engine.Level;
@@ -14,43 +13,29 @@ internal class EngineCore
     private readonly ILogger _logger;
     private readonly EngineConfig _config;
 
-    public EngineCore(EngineConfig config)
+    public EngineCore(EngineConfig config, GraphicsDeviceManager graphicsDeviceManager)
     {
         _logger = config.LoggerFactory.CreateLogger<EngineCore>();
         _config = config;
+
+        Dependencies = BuildCoreServices(graphicsDeviceManager);
+        StageFactory = BuildStages(Dependencies);
     }
 
-    public Dependencies BuildDependencies(GraphicsDeviceManager graphicsDeviceManager)
+    public StaticServices Dependencies { get; private init; }
+    public StageFactory StageFactory { get; private init; }
+
+    private StaticServices BuildCoreServices(GraphicsDeviceManager graphicsDeviceManager)
     {
         _logger.LogInformation("Starting engine.");
 
-        var components = RegisterComponents();
-        var dependencies = CreateDependencies(graphicsDeviceManager, components);
-
-        dependencies.Stages.Next = _config.StageCollectionConfig.InitialStageName;
-
-        return dependencies;
-    }
-
-    internal StageRepository BuildStages(Dependencies dependencies)
-    {
-        var repo = new StageRepository(_config.LoggerFactory, dependencies, _config.StageCollectionConfig.StageBuilders);
-        return repo;
-    }
-
-    private ComponentRegistry RegisterComponents()
-    {
         _logger.LogInformation("Registering components.");
-
-        var registry = ComponentRegistryFactory.Create(_config.ComponentConfig, _config.LoggerFactory);
+        var components = ComponentRegistryFactory.Create(_config.ComponentConfig, _config.LoggerFactory);
 
         _logger.LogInformation("Finished registering components.");
-        return registry;
-    }
 
-    private Dependencies CreateDependencies(GraphicsDeviceManager graphicsDeviceManager, ComponentRegistry components)
-    {
         _logger.LogInformation("Building dependencies.");
+
         var serializer = SerializerFactory.Create(_config.SerializationConfig, components);
         var fileSystem = FileSystemFactory.Create(_config.FileSystemConfig, serializer);
         var database = new Database(_config.LoggerFactory, fileSystem);
@@ -59,17 +44,28 @@ internal class EngineCore
         var textures = new TextureSystem(_config.LoggerFactory, graphicsDeviceManager.GraphicsDevice, fileSystem);
         var stages = new StageManager(_config.LoggerFactory, fileSystem);
 
-        var dependencies = new Dependencies(
-            _config.LoggerFactory,
-            database,
-            fileSystem,
-            fontSystem,
-            screen,
-            stages,
-            textures);
+        var statics = new StaticServices
+        {
+            Database = database,
+            FileSystem = fileSystem,
+            Fonts = fontSystem,
+            LoggerFactory = _config.LoggerFactory,
+            Screen = screen,
+            Stages = stages,
+            Textures = textures,
+        };
 
         _logger.LogInformation("Finished building dependencies.");
-        return dependencies;
+
+        statics.Stages.Next = _config.StageCollectionConfig.InitialStageName;
+
+        return statics;
+    }
+
+    private StageFactory BuildStages(StaticServices dependencies)
+    {
+        var repo = new StageFactory(_config.LoggerFactory, dependencies, _config.StageCollectionConfig.StageBuilders);
+        return repo;
     }
 }
 

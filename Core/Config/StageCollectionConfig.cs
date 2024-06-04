@@ -9,5 +9,5 @@ public class StageCollectionConfig
     }
 
     public string InitialStageName { get; set; }
-    public Dictionary<string, Action<StageConfig, Dependencies>> StageBuilders { get; private init; }
+    public Dictionary<string, Action<StageConfig, Services>> StageBuilders { get; private init; }
 }

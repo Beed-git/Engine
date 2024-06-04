@@ -10,15 +10,15 @@ namespace Engine.Core.Internal;
 internal class SystemManager
 {
     private readonly ILogger _logger;
-    private readonly StageRepository _repository;
+    private readonly StageFactory _stageFactory;
     private readonly StageManager _stages;
     private readonly Stopwatch _profiler;
 
-    internal SystemManager(ILoggerFactory loggerFactory, StageRepository repository, StageManager stages)
+    internal SystemManager(EngineCore core)
     {
-        _logger = loggerFactory.CreateLogger<SystemManager>();
-        _repository = repository;
-        _stages = stages;
+        _logger = core.Dependencies.LoggerFactory.CreateLogger<SystemManager>();
+        _stageFactory = core.StageFactory;
+        _stages = core.Dependencies.Stages;
         _profiler = new Stopwatch();
     }
 
@@ -34,7 +34,7 @@ internal class SystemManager
         _logger.LogInformation("Destroying stage '{}'", stage.Name);
         stage.EventRegistry.Invoke<StageDestructEvent>(stage.SceneManager.Current);
 
-        stage = _repository.Create(_stages.Next);
+        stage = _stageFactory.Create(_stages.Next);
         _stages.CurrentStage = stage;
         _stages.Next = null;
 

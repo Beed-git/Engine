@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace Engine.Util;
 
@@ -18,6 +19,8 @@ public static class DirectInput
         s_mouseCurrent = Mouse.GetState();
         s_keyboardCurrent = Keyboard.GetState();
     }
+
+    public static Point MousePosition => new(s_mouseCurrent.X, s_mouseCurrent.Y);
 
     public static bool IsKeyDown(Keys key)
     {
