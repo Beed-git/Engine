@@ -1,14 +1,14 @@
 ﻿namespace Engine.Resources;
 
-public static class ResourceNameHelpers
+public readonly partial struct ResourceName
 {
-    public static string Normalize(string name)
+    private static string Normalize(string name)
     {
         var normalized = name
             .Trim()
             .ToLower();
 
-        if (normalized.StartsWith(Resource.Separator))
+        if (normalized.StartsWith(ResourceName.Separator))
         {
             normalized = normalized[1..];
         }
@@ -20,9 +20,9 @@ public static class ResourceNameHelpers
 
     private static void ThrowIfInvalid(string path)
     {
-        if (path.StartsWith(Resource.Separator))
+        if (path.StartsWith(ResourceName.Separator))
         {
-            throw new Exception($"Can't start with more than one separator ('{Resource.Separator}')");
+            throw new Exception($"Can't start with more than one separator ('{ResourceName.Separator}')");
         }
 
         char lastChar = '\0';
@@ -32,7 +32,7 @@ public static class ResourceNameHelpers
 
             if (ch == '\\')
             {
-                throw new Exception($"Resource name must not contain any '\\'. Use '{Resource.Separator}' instead. Invalid resource is: '{path}'");
+                throw new Exception($"Resource name must not contain any '\\'. Use '{ResourceName.Separator}' instead. Invalid resource is: '{path}'");
             }
             if (ch == '.')
             {

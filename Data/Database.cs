@@ -12,7 +12,7 @@ public class Database
     private readonly ILogger _logger;
     private readonly FileSystem _files;
 
-    private readonly Dictionary<Resource, DatabaseFile> _data;
+    private readonly Dictionary<ResourceName, DatabaseFile> _data;
 
     internal Database(ILoggerFactory loggerFactory, FileSystem files)
     {
@@ -22,12 +22,12 @@ public class Database
         _data = [];
     }
 
-    public Template? Get(Resource resource)
+    public Template? Get(ResourceName resource)
     {
         var folder = resource.GetDirectory();
         if (folder == string.Empty)
         {
-            throw new Exception($"Invalid resource. A data resource should have at least one '{Resource.Separator}' that is not the first character. (The file part.)");
+            throw new Exception($"Invalid resource. A data resource should have at least one '{ResourceName.Separator}' that is not the first character. (The file part.)");
         }
 
         if (!_data.TryGetValue(folder, out var data))
@@ -49,7 +49,7 @@ public class Database
         return template;
     }
 
-    public bool Load(Resource resource)
+    public bool Load(ResourceName resource)
     {
         if (!Load(resource, out var data))
         {
@@ -60,9 +60,9 @@ public class Database
         return true;
     }
     
-    private bool Load(Resource resource, [MaybeNullWhen(false)] out DatabaseFile data)
+    private bool Load(ResourceName resource, [MaybeNullWhen(false)] out DatabaseFile data)
     {
-        var path = $"{FileSystemSettings.DataFolder}{resource}";
+        var path = $"{FileSystemSettings.AssetsFolder}{resource}";
         if (_files.TryReadJsonAsset(path, out data))
         {
             return true;
@@ -72,7 +72,7 @@ public class Database
         return false;
     }
 
-    public bool Unload(Resource resource)
+    public bool Unload(ResourceName resource)
     {
         return _data.Remove(resource);
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Maths.Hexagons;
 
@@ -61,6 +62,16 @@ public readonly struct AxialCoordinate
         return $"({Q},{R},{S})";
     }
 
+    public override bool Equals([NotNullWhen(true)] object? obj)
+    {
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
+
     /// <summary>
     /// Converts from an Odd-q position.
     /// </summary>
@@ -75,4 +86,15 @@ public readonly struct AxialCoordinate
 
     public static AxialCoordinate operator +(AxialCoordinate left, AxialCoordinate right) => new(left.Q + right.Q, left.R + right.R);
     public static AxialCoordinate operator -(AxialCoordinate left, AxialCoordinate right) => new(left.Q - right.Q, left.R - right.R);
+
+    public static bool operator ==(AxialCoordinate left, AxialCoordinate right)
+    {
+        return left.Q == right.Q
+            && left.R == right.R;
+    }
+
+    public static bool operator !=(AxialCoordinate left, AxialCoordinate right)
+    {
+        return !(left == right);
+    }
 }

@@ -20,6 +20,8 @@ public class Camera2D
         _zoom = 1.0f;
     }
 
+    public static Camera2D None => new ();
+
     public Matrix Transform => _transform;
     public Vector2 Position
     {

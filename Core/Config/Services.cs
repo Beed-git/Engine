@@ -3,6 +3,7 @@ using Engine.ECS;
 using Engine.Files;
 using Engine.Level;
 using Engine.Rendering;
+using Engine.Resources;
 using FontStashSharp;
 using Microsoft.Extensions.Logging;
 
@@ -13,8 +14,9 @@ public class StaticServices
 {
     public required ILoggerFactory LoggerFactory { get; init; }
     public required Database Database { get; init; }
-    public required FileSystem FileSystem { get; init; }
+    public required FileSystem Files { get; init; }
     public required FontSystem Fonts { get; init; }
+    public required ResourceSystem Resources { get; init; }
     public required Screen Screen { get; init; }
     public required StageManager Stages { get; init; }
     public required TextureSystem Textures { get; init; }
@@ -38,10 +40,11 @@ public class Services
 
         LoggerFactory = statics.LoggerFactory;
         Database = statics.Database;
-        FileSystem = statics.FileSystem;
+        FileSystem = statics.Files;
         Fonts = statics.Fonts;
         Screen = statics.Screen;
         Stages = statics.Stages;
+        Resources = statics.Resources;
         Textures = statics.Textures;
     }
 
@@ -53,6 +56,7 @@ public class Services
     public Database Database { get; init; }
     public FileSystem FileSystem { get; init; }
     public FontSystem Fonts { get; init; }
+    public ResourceSystem Resources { get; init; }
     public Screen Screen { get; init; }
     public StageManager Stages { get; init; }
     public TextureSystem Textures { get; init; }

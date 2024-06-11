@@ -5,13 +5,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Level;
 
-public class TileMap
+// TODO: Remove me.
+public class TileMapOld
     : IEnumerable<KeyValuePair<Point, TileChunkMetadata>>
 {
     private readonly Dictionary<Point, TileChunkMetadata> _chunks;
     private readonly IChunkGenerator _generator;
 
-    public TileMap(IChunkGenerator generator, TileSheet tileSheet)
+    public TileMapOld(IChunkGenerator generator, TileSheet tileSheet)
     {
         _generator = generator;
         _chunks = [];
@@ -20,6 +21,7 @@ public class TileMap
     }
 
     public TileSheet TileSheet { get; set; }
+
     public TileChunkMetadata this[Point point]
     {
         get => GetChunk(point);

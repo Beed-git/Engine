@@ -19,7 +19,7 @@ public class FileSystem
 
     // Asset handling.
 
-    public bool ExistsJsonAsset(Resource resource)
+    public bool ExistsJsonAsset(ResourceName resource)
     {
         var file = CreateFilePath(resource);
         var path = Path.ChangeExtension(file, JsonExtension);
@@ -27,7 +27,17 @@ public class FileSystem
         return exists;
     }
 
-    public bool TryReadJsonAsset<T>(Resource resource, [MaybeNullWhen(false)] out T asset)
+    public T ReadJsonAsset<T>(ResourceName name)
+    {
+        if (TryReadJsonAsset<T>(name, out var data))
+        {
+            return data;
+        }
+
+        throw new Exception($"Failed to find json asset '{name}.{JsonExtension}'");
+    }
+
+    public bool TryReadJsonAsset<T>(ResourceName resource, [MaybeNullWhen(false)] out T asset)
     {
         var file = CreateFilePath(resource);
         var path = Path.ChangeExtension(file, JsonExtension);
@@ -43,7 +53,7 @@ public class FileSystem
         return true;
     }
 
-    public void WriteJsonAsset<T>(Resource resource, T value)
+    public void WriteJsonAsset<T>(ResourceName resource, T value)
     {
         var file = CreateFilePath(resource);
         var path = Path.ChangeExtension(file, JsonExtension);
@@ -51,7 +61,17 @@ public class FileSystem
         File.WriteAllText(path, json);
     }
 
-    public bool TryReadBinary(Resource resource, string extension, out byte[] asset)
+    public byte[] ReadBinary(ResourceName name, string extension)
+    {
+        if (TryReadBinary(name, extension, out var data))
+        {
+            return data;
+        }
+
+        throw new Exception($"Failed to find file '{name}.{extension}'");
+    }
+
+    public bool TryReadBinary(ResourceName resource, string extension, out byte[] asset)
     {
         var file = CreateFilePath(resource);
         var path = Path.ChangeExtension(file, extension);
@@ -65,7 +85,7 @@ public class FileSystem
         return true;
     }
 
-    public bool TryOpenBinaryStream(Resource resource, string extension, [MaybeNullWhen(false)] out Stream stream)
+    public bool TryOpenBinaryStream(ResourceName resource, string extension, [MaybeNullWhen(false)] out Stream stream)
     {
         var file = CreateFilePath(resource);
         var path = Path.ChangeExtension(file, extension);
@@ -79,11 +99,11 @@ public class FileSystem
         return true;
     }
 
-    private string CreateFilePath(Resource resource)
+    private string CreateFilePath(ResourceName resource)
     {
         var split = resource.Id
             .ToLower()
-            .Split(Resource.Separator);
+            .Split(ResourceName.Separator);
 
         var output = Path.Combine(_settings.RootDirectory, Path.Combine(split));
         return output;

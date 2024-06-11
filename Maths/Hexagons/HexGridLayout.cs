@@ -4,33 +4,31 @@ namespace Engine.Maths.Hexagons;
 
 public class HexGridLayout
 {
-    private float _size;
+    private Point _mapSize;
 
-    public HexGridLayout(int size)
+    public HexGridLayout(Point mapSize)
     {
-        _size = size;
+        MapSize = mapSize;
     }
 
-    public float Size
+    public Point MapSize
     {
-        get => _size;
+        get => _mapSize;
         set
         {
-            if (_size != value)
+            if (value.X <= 0 || value.Y <= 0)
             {
-                _size = value;
-                CalculateDimensions();
+                throw new NotImplementedException("Infinite hexagonal maps are not yet supported.");
             }
+            _mapSize = value;
         }
     }
 
-    public Vector2 HexagonDimensions { get; private set; }
-
-    private void CalculateDimensions()
+    public bool IsOnMap(AxialCoordinate coordinate)
     {
-        var width = 2 * _size;
-        var height = MathF.Sqrt(3) * _size;
-        HexagonDimensions = new Vector2(width, height);
+        var point = (Point)coordinate;
+        return point.X >= 0 && point.X < _mapSize.X
+            && point.Y >= 0 && point.Y < _mapSize.Y;
     }
 
     public AxialCoordinate WorldPositionToHex(Vector2 position)
@@ -40,5 +38,29 @@ public class HexGridLayout
 
         var coord = AxialCoordinate.Round(q, r);
         return coord;
+    }
+
+    public IEnumerable<AxialCoordinate> HexesInRange(AxialCoordinate center, int range)
+    {
+        if (range < 0)
+        {
+            return [];
+        }
+
+        if (range == 0)
+        {
+            return [center];
+        }
+
+        var results = new HashSet<AxialCoordinate>();
+        for (int q = -range; q <= range; q++)
+        {
+            for (int r = Math.Max(-range, -q - range); r <= Math.Min(range, -q + range); r++)
+            {
+                var coordinate = new AxialCoordinate(q, r);
+                results.Add(center + coordinate);
+            }
+        }
+        return results;
     }
 }

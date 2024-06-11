@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework;
 using Engine.Level;
 using Engine.Core.Config;
 using Engine.Core.Config.Factories;
+using Engine.Resources;
+using Engine.Resources.Loaders;
 
 namespace Engine.Core.Internal;
 
@@ -37,19 +39,24 @@ internal class EngineCore
         _logger.LogInformation("Building dependencies.");
 
         var serializer = SerializerFactory.Create(_config.SerializationConfig, components);
-        var fileSystem = FileSystemFactory.Create(_config.FileSystemConfig, serializer);
-        var database = new Database(_config.LoggerFactory, fileSystem);
+        var files = FileSystemFactory.Create(_config.FileSystemConfig, serializer);
+        var database = new Database(_config.LoggerFactory, files);
         var screen = new Screen(graphicsDeviceManager);
-        var fontSystem = FontSystemFactory.Create(_config.FontConfig, fileSystem);
-        var textures = new TextureSystem(_config.LoggerFactory, graphicsDeviceManager.GraphicsDevice, fileSystem);
-        var stages = new StageManager(_config.LoggerFactory, fileSystem);
+        var fontSystem = FontSystemFactory.Create(_config.FontConfig, files);
+        var textures = new TextureSystem(_config.LoggerFactory, graphicsDeviceManager.GraphicsDevice, files);
+        var stages = new StageManager(_config.LoggerFactory, files);
+
+        // TODO: Move resource initialization somewhere else.
+        var resources = new ResourceSystem(files, serializer);
+        resources.AddResourceLoader(new TileSetResourceLoader(serializer, textures));
 
         var statics = new StaticServices
         {
             Database = database,
-            FileSystem = fileSystem,
+            Files = files,
             Fonts = fontSystem,
             LoggerFactory = _config.LoggerFactory,
+            Resources = resources,
             Screen = screen,
             Stages = stages,
             Textures = textures,

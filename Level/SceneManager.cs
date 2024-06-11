@@ -13,7 +13,7 @@ public class SceneManager
     private readonly FileSystem _files;
 
     private readonly Scene _empty;
-    private readonly Dictionary<Resource, Scene> _cache;
+    private readonly Dictionary<ResourceName, Scene> _cache;
 
     public SceneManager(ILoggerFactory loggerFactory, FileSystem files)
     {
@@ -21,9 +21,7 @@ public class SceneManager
         _files = files;
         _cache = [];
 
-        var generator = new EmptyChunkGenerator();
-        var map = new TileMap(generator, TileSheet.Empty);
-        _empty = Create("empty", map);
+        _empty = Create("empty");
 
         Next = null;
         Current = _empty;
@@ -32,13 +30,7 @@ public class SceneManager
     public Scene? Next { get; internal set; }
     public Scene Current { get; internal set; }
 
-    public Scene Create(Resource name)
-    {
-        var tiles = new TileMap(new EmptyChunkGenerator(), TileSheet.Empty);
-        return Create(name, tiles);
-    }
-
-    public Scene Create(Resource name, TileMap tiles)
+    public Scene Create(ResourceName name)
     {
         if (_cache.TryGetValue(name, out var scene))
         {
@@ -54,12 +46,12 @@ public class SceneManager
         var entities = World.Create();
         var camera = new Camera2D();
 
-        scene = new Scene(name, tiles, entities, camera);
+        scene = new Scene(name, entities, camera);
         _cache.Add(name, scene);    
         return scene;
     }
 
-    public void ChangeScene(Resource name)
+    public void ChangeScene(ResourceName name)
     {
         if (TryGetScene(name, out var scene))
         {
@@ -73,7 +65,7 @@ public class SceneManager
         Next = scene;
     }
 
-    private bool TryGetScene(Resource name, [MaybeNullWhen(false)] out Scene scene) 
+    private bool TryGetScene(ResourceName name, [MaybeNullWhen(false)] out Scene scene) 
     {
         if (_cache.TryGetValue(name, out scene!))
         {

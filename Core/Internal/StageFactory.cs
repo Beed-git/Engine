@@ -31,7 +31,7 @@ internal class StageFactory
         _logger.LogInformation("Creating stage '{}'", name);
 
         // Set dependencies.
-        var sceneManager = new SceneManager(_statics.LoggerFactory, _statics.FileSystem);
+        var sceneManager = new SceneManager(_statics.LoggerFactory, _statics.Files);
         var eventRegistry = new EventRegistry(_statics.LoggerFactory);
         var events = new EventSystem(eventRegistry);
 
