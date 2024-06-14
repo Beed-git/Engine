@@ -11,7 +11,6 @@ internal static class SerializerFactory
         var allowTrailingCommas = true;
         var commentHandling = JsonCommentHandling.Skip;
 
-
         var jsonSerializerOptions = new JsonSerializerOptions
         {
             AllowTrailingCommas = allowTrailingCommas,

@@ -27,7 +27,7 @@ public class Database
         var folder = resource.GetDirectory();
         if (folder == string.Empty)
         {
-            throw new Exception($"Invalid resource. A data resource should have at least one '{ResourceName.Separator}' that is not the first character. (The file part.)");
+            throw new Exception($"Invalid resource. A data resource should have at least one '{ResourceName.SeparatorChar}' that is not the first character. (The file part.)");
         }
 
         if (!_data.TryGetValue(folder, out var data))
@@ -39,7 +39,7 @@ public class Database
             }
         }
 
-        var file = resource.GetFile();
+        var file = resource.GetFileName();
         if (!data.TryGetValue(file, out var template))
         {
             _logger.LogWarning("Invalid path. Template '{}' was not found in file '{}' for path '{}'", file, folder, resource);

@@ -1,4 +1,4 @@
-﻿using Engine.ECS.Events;
+﻿using Engine.Events;
 using Engine.Level;
 using ImGuiNET;
 using Microsoft.Extensions.Logging;
@@ -32,14 +32,14 @@ internal class SystemManager
         var stage = _stages.CurrentStage;
 
         _logger.LogInformation("Destroying stage '{}'", stage.Name);
-        stage.EventRegistry.Invoke<StageDestructEvent>(stage.SceneManager.Current);
+        stage.EventRegistry.Invoke<OnStageDestructEvent>(stage.SceneManager.Current);
 
         stage = _stageFactory.Create(_stages.Next);
         _stages.CurrentStage = stage;
         _stages.Next = null;
 
         _logger.LogInformation("Initializing stage '{}'", stage.Name);
-        stage.EventRegistry.Invoke<StageInitialiseEvent>(stage.SceneManager.Current);
+        stage.EventRegistry.Invoke<OnStageInitialiseEvent>(stage.SceneManager.Current);
     }
 
     public void SceneChange()
@@ -52,13 +52,13 @@ internal class SystemManager
         }
 
         _logger.LogInformation("Unloading scene '{}'", scenes.Current.Name);
-        stage.EventRegistry.Invoke<SceneUnloadEvent>(scenes.Current);
+        stage.EventRegistry.Invoke<OnSceneUnloadEvent>(scenes.Current);
 
         scenes.Current = scenes.Next;
         scenes.Next = null;
 
         _logger.LogInformation("Loading scene '{}'", scenes.Current.Name);
-        stage.EventRegistry.Invoke<SceneLoadEvent>(scenes.Current);
+        stage.EventRegistry.Invoke<OnSceneLoadEvent>(scenes.Current);
     }
 
     public void Update(GameTime gameTime)

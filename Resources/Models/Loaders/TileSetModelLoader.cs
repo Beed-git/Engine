@@ -1,32 +1,27 @@
 ﻿using Engine.Rendering;
 using Engine.Resources.Models;
-using Engine.Serialization;
 using Microsoft.Xna.Framework;
-using System.Text.Json;
+using Microsoft.Xna.Framework.Graphics;
 
-namespace Engine.Resources.Loaders;
+namespace Engine.Resources.Models.Loaders;
 
-internal class TileSetResourceLoader
-    : IResourceLoader<TileSet>
+public class TileSetModelLoader
+    : IModelResourceLoader<TileSet, TileSetModel>
 {
-    private readonly Serializer _serializer;
-    private readonly TextureSystem _textures;
+    private readonly ResourceSystem _resources;
 
-    public TileSetResourceLoader(Serializer serializer, TextureSystem textures)
+    public TileSetModelLoader(ResourceSystem resources)
     {
-        _serializer = serializer;
-        _textures = textures;
+        _resources = resources;
     }
 
-    public TileSet Load(ref Utf8JsonReader reader)
+    public TileSet Load(TileSetModel model)
     {
-        var model = _serializer.Deserialize<TileSetModel>(ref reader);
-
         var sources = new List<Rectangle>();
 
         var name = new ResourceName(model.Texture);
-        var resource = _textures.GetTexture(name);
-        
+        var texture = _resources.Get<Texture2D>(name);
+
         foreach (var auto in model.Auto)
         {
             var width = (auto.Bounds.X + auto.Bounds.Width) / auto.Tiles.Width;
@@ -47,7 +42,7 @@ internal class TileSetResourceLoader
             }
         }
 
-        var tileset = new TileSet(resource, sources);
+        var tileset = new TileSet(texture, sources);
         return tileset;
     }
 }

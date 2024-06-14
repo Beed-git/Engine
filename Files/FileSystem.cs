@@ -9,38 +9,23 @@ public class FileSystem
     private readonly FileSystemSettings _settings;
     private readonly Serializer _serializer;
 
-    private const string JsonExtension = ".json";
-
     internal FileSystem(FileSystemSettings settings, Serializer serializer)
     {
         _settings = settings;
         _serializer = serializer;
     }
 
-    // Asset handling.
-
-    public bool ExistsJsonAsset(ResourceName resource)
+    public bool Exists(ResourceName resource)
     {
-        var file = CreateFilePath(resource);
-        var path = Path.ChangeExtension(file, JsonExtension);
+        var path = CreateFilePath(resource);
         var exists = File.Exists(path);
         return exists;
     }
 
-    public T ReadJsonAsset<T>(ResourceName name)
-    {
-        if (TryReadJsonAsset<T>(name, out var data))
-        {
-            return data;
-        }
-
-        throw new Exception($"Failed to find json asset '{name}.{JsonExtension}'");
-    }
-
+    [Obsolete($"Use {nameof(Serializer)} instead.")]
     public bool TryReadJsonAsset<T>(ResourceName resource, [MaybeNullWhen(false)] out T asset)
     {
-        var file = CreateFilePath(resource);
-        var path = Path.ChangeExtension(file, JsonExtension);
+        var path = CreateFilePath(resource);
         if (!File.Exists(path))
         {
             asset = default;
@@ -53,28 +38,19 @@ public class FileSystem
         return true;
     }
 
-    public void WriteJsonAsset<T>(ResourceName resource, T value)
+    public byte[] ReadBinary(ResourceName name)
     {
-        var file = CreateFilePath(resource);
-        var path = Path.ChangeExtension(file, JsonExtension);
-        var json = _serializer.Serialize(value);
-        File.WriteAllText(path, json);
-    }
-
-    public byte[] ReadBinary(ResourceName name, string extension)
-    {
-        if (TryReadBinary(name, extension, out var data))
+        if (TryReadBinary(name, out var data))
         {
             return data;
         }
 
-        throw new Exception($"Failed to find file '{name}.{extension}'");
+        throw new Exception($"Failed to find file '{name}'");
     }
 
-    public bool TryReadBinary(ResourceName resource, string extension, out byte[] asset)
+    public bool TryReadBinary(ResourceName resource, out byte[] asset)
     {
-        var file = CreateFilePath(resource);
-        var path = Path.ChangeExtension(file, extension);
+        var path = CreateFilePath(resource);
         if (!File.Exists(path))
         {
             asset = [];
@@ -85,10 +61,23 @@ public class FileSystem
         return true;
     }
 
-    public bool TryOpenBinaryStream(ResourceName resource, string extension, [MaybeNullWhen(false)] out Stream stream)
+    public Stream OpenReadStream(ResourceName name)
     {
-        var file = CreateFilePath(resource);
-        var path = Path.ChangeExtension(file, extension);
+        var path = CreateFilePath(name);
+        var stream = File.OpenRead(path);
+        return stream;
+    }
+
+    public Stream OpenWriteStream(ResourceName name)
+    {
+        var path = CreateFilePath(name);
+        var stream = File.OpenWrite(path);
+        return stream;
+    }
+
+    public bool TryOpenStream(ResourceName resource, [MaybeNullWhen(false)] out Stream stream)
+    {
+        var path = CreateFilePath(resource);
         if (!File.Exists(path))
         {
             stream = null;
@@ -99,11 +88,20 @@ public class FileSystem
         return true;
     }
 
+    // Helpers.
+
     private string CreateFilePath(ResourceName resource)
     {
-        var split = resource.Id
-            .ToLower()
-            .Split(ResourceName.Separator);
+        var path = resource.Id;
+        if (!Path.HasExtension(path))
+        {
+            path = Path.ChangeExtension(path, ResourceName.DefaultExtension);
+        }
+
+        // TODO: Validate path.
+
+        var split = path
+            .Split(ResourceName.SeparatorChar);
 
         var output = Path.Combine(_settings.RootDirectory, Path.Combine(split));
         return output;

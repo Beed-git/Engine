@@ -1,6 +1,4 @@
-﻿using Arch.Core;
-using Engine.Files;
-using Engine.Rendering;
+﻿using Engine.Files;
 using Engine.Resources;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics.CodeAnalysis;
@@ -38,27 +36,17 @@ public class SceneManager
             return scene;
         }
 
-        if (_files.ExistsJsonAsset(name))
+        if (_files.Exists(name))
         {
             _logger.LogWarning("A scene with the name '{}' was dynamically created but an asset with the same name exists on the disk. Did you mean to load this scene instead?", name);
         }
 
-        var entities = World.Create();
-        var camera = new Camera2D();
-
-        scene = new Scene(name, entities, camera);
+        scene = new Scene(name);
         _cache.Add(name, scene);    
         return scene;
     }
 
-    public void ChangeScene(ResourceName name)
-    {
-        if (TryGetScene(name, out var scene))
-        {
-            Next = scene;
-        }
-    }
-
+    // TODO: Replace with event.
     public void ChangeScene(Scene scene)
     {
         _cache.TryAdd(scene.Name, scene);

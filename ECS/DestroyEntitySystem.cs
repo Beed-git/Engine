@@ -14,8 +14,8 @@ public class DestroyEntitySystem
             .WithAll<DestroyEntityTag>();
     }
 
-    public void Update(Scene scene)
+    public void Update(World? entities)
     {
-        scene.Entities.Destroy(in _query);
+        entities?.Destroy(in _query);
     }
 }

@@ -1,25 +1,32 @@
 ﻿
 namespace Engine.Resources;
 
+/// <summary>
+/// The name of a resource
+/// A name without an extension (e.g. level/map-1) will use the default resource 
+/// extension (.json) and load using a ModelLoader.
+/// A name with an extension will load directly from the binary and use the RawLoader.
+/// A name which starts with '#' won't load from the disk.
+/// </summary>
 public readonly partial struct ResourceName
 {
-    public const char Separator = '/';
+    internal const char SeparatorChar = '/';
+    internal const char InternalResourceChar = '#';
+    internal const string DefaultExtension = "json";
 
     public readonly string Id;
 
     public ResourceName(string name)
     {
-        Id = Normalize(name);
+        Id = Create(name);
     }
 
-    public readonly bool IsTopLevel()
-    {
-        return Id.Contains(Separator);
-    }
+    public bool IsInternalResource => Id.StartsWith(InternalResourceChar);
+    public bool HasExtension => Id.Contains('.');
 
     public readonly string GetDirectory()
     {
-        var index = Id.LastIndexOf(Separator);
+        var index = Id.LastIndexOf(SeparatorChar);
         if (index < 0)
         {
             return string.Empty;
@@ -38,13 +45,13 @@ public readonly partial struct ResourceName
         }
 
         var dir = Id[..index];
-        var dirs = dir.Split(Separator);
+        var dirs = dir.Split(SeparatorChar);
         return dirs;
     }
 
-    public readonly string GetFile()
+    public readonly string GetFileName()
     {
-        var index = Id.IndexOf(Separator);
+        var index = Id.LastIndexOf(SeparatorChar);
         if (index < 0)
         {
             return Id;

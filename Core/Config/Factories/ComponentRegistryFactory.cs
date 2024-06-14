@@ -1,7 +1,6 @@
 ﻿using Engine.ECS;
 using Engine.Serialization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Win32;
 using System.Reflection;
 
 namespace Engine.Core.Config.Factories;

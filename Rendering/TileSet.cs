@@ -8,16 +8,16 @@ namespace Engine.Rendering;
 public class TileSet
 {
     private readonly IList<Rectangle> _sources;
-    private readonly Resource<Texture2D> _texture;
+    private readonly Texture2D _texture;
 
-    public TileSet(Resource<Texture2D> texture, IEnumerable<Rectangle> sources)
+    public TileSet(Texture2D texture, IEnumerable<Rectangle> sources)
     {
         _texture = texture;
         _sources = sources.ToImmutableList();
     }
 
     public int TileCount => _sources.Count;
-    public Resource<Texture2D> Texture => _texture;
+    public Texture2D Texture => _texture;
 
     public Rectangle GetSource(int index)
     {

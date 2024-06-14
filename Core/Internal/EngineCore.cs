@@ -6,7 +6,7 @@ using Engine.Level;
 using Engine.Core.Config;
 using Engine.Core.Config.Factories;
 using Engine.Resources;
-using Engine.Resources.Loaders;
+using System.Reflection;
 
 namespace Engine.Core.Internal;
 
@@ -40,15 +40,13 @@ internal class EngineCore
 
         var serializer = SerializerFactory.Create(_config.SerializationConfig, components);
         var files = FileSystemFactory.Create(_config.FileSystemConfig, serializer);
-        var database = new Database(_config.LoggerFactory, files);
-        var screen = new Screen(graphicsDeviceManager);
-        var fontSystem = FontSystemFactory.Create(_config.FontConfig, files);
-        var textures = new TextureSystem(_config.LoggerFactory, graphicsDeviceManager.GraphicsDevice, files);
-        var stages = new StageManager(_config.LoggerFactory, files);
 
-        // TODO: Move resource initialization somewhere else.
+        var database = new Database(_config.LoggerFactory, files);
+        var fontSystem = FontSystemFactory.Create(_config.FontConfig, files);
         var resources = new ResourceSystem(files, serializer);
-        resources.AddResourceLoader(new TileSetResourceLoader(serializer, textures));
+        var screen = new Screen(graphicsDeviceManager);
+        var stages = new StageManager(_config.LoggerFactory, files);
+        var textures = new TextureSystem(graphicsDeviceManager.GraphicsDevice);
 
         var statics = new StaticServices
         {
@@ -63,6 +61,19 @@ internal class EngineCore
         };
 
         _logger.LogInformation("Finished building dependencies.");
+
+        _logger.LogInformation("Initializing resources.");
+
+        var resourceConfig = _config.PostInitializeConfig.CreateResourceConfig.Invoke(statics);
+        foreach (var (type, config) in resourceConfig.Resources)
+        {;
+            var method = typeof(ResourceSystem).GetMethod(nameof(ResourceSystem.AddConfig), BindingFlags.Instance | BindingFlags.NonPublic);
+            var methodRef = method!.MakeGenericMethod(type);
+            methodRef.Invoke(resources, [config]);
+        }
+
+        _logger.LogInformation("Finished initializing resources.");
+
 
         statics.Stages.Next = _config.StageCollectionConfig.InitialStageName;
 

@@ -10,8 +10,8 @@ internal static class FontSystemFactory
         var fontPath = config.OverrideFallbackFont
             ?? throw new NotImplementedException("Default font has not been added.");
 
-        var resource = $"{FileSystemSettings.AssetsFolder}{fontPath}";
-        if (!files.TryReadBinary(resource, FontConfig.FontExtension, out var font))
+        var resource = $"{FileSystemSettings.AssetsFolder}{fontPath}.{FontConfig.FontExtension}";
+        if (!files.TryReadBinary(resource, out var font))
         {
             throw new Exception($"Failed to find font resource at path '{resource}'");
         }

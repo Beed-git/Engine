@@ -13,5 +13,5 @@ public class FileSystemSettings
     public string RootDirectory { get; private init; }
 
     // Constants.
-    public static string AssetsFolder => $"assets{ResourceName.Separator}";
+    public static string AssetsFolder => $"assets{ResourceName.SeparatorChar}";
 }

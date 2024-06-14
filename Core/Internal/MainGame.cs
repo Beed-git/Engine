@@ -1,5 +1,6 @@
 ﻿using Engine.Core.Config;
 using Engine.DebugGUI.Internal;
+using Engine.Rendering;
 using Engine.Util;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
@@ -57,7 +58,10 @@ public class MainGame
         DirectInput.Update();
         _systems.Update(gameTime);
         _core.Dependencies.Stages.CurrentStage.Events.RunEvents(_core.Dependencies.Stages.CurrentStage.SceneManager.Current);
-        _core.Dependencies.Stages.CurrentStage.SceneManager.Current.Camera.Update(GraphicsDevice);
+        if (_core.Dependencies.Stages.CurrentStage.SceneManager.Current.TryGet<Camera2D>(out var camera))
+        {
+            camera.Update(GraphicsDevice);
+        }
 
         base.Update(gameTime);
     }

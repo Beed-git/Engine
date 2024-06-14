@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Engine.Serialization;
 
-internal class Serializer
+public class Serializer
 {
     private readonly JsonSerializerOptions _options;
     private readonly JsonReaderOptions _readerOptions; 

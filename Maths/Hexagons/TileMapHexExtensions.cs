@@ -1,37 +1,18 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Engine.Level;
+using Microsoft.Xna.Framework;
 
 namespace Engine.Maths.Hexagons;
 
-public class HexGridLayout
+public static class TileMapHexExtensions
 {
-    private Point _mapSize;
-
-    public HexGridLayout(Point mapSize)
-    {
-        MapSize = mapSize;
-    }
-
-    public Point MapSize
-    {
-        get => _mapSize;
-        set
-        {
-            if (value.X <= 0 || value.Y <= 0)
-            {
-                throw new NotImplementedException("Infinite hexagonal maps are not yet supported.");
-            }
-            _mapSize = value;
-        }
-    }
-
-    public bool IsOnMap(AxialCoordinate coordinate)
+    public static bool IsOnMap(this TileMap tileMap, AxialCoordinate coordinate)
     {
         var point = (Point)coordinate;
-        return point.X >= 0 && point.X < _mapSize.X
-            && point.Y >= 0 && point.Y < _mapSize.Y;
+        return point.X >= 0 && point.X < tileMap.Width
+            && point.Y >= 0 && point.Y < tileMap.Height;
     }
 
-    public AxialCoordinate WorldPositionToHex(Vector2 position)
+    public static AxialCoordinate WorldPositionToHex(this TileMap tileMap, Vector2 position)
     {
         var q = 2f / 3 * position.X;
         var r = -1f / 3 * position.X + MathF.Sqrt(3) / 3 * position.Y;
@@ -40,7 +21,7 @@ public class HexGridLayout
         return coord;
     }
 
-    public IEnumerable<AxialCoordinate> HexesInRange(AxialCoordinate center, int range)
+    public static IEnumerable<AxialCoordinate> HexesInRange(this TileMap tileMap, AxialCoordinate center, int range)
     {
         if (range < 0)
         {

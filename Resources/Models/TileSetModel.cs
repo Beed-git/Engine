@@ -10,13 +10,7 @@ public class TileSetModel
     public class AutoModel
     {
         public RectangleModel Bounds { get; set; }
-        public TileInformationModel Tiles { get; set; }
-    }
-
-    public class TileInformationModel
-    {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public SizeModel Tiles { get; set; }
     }
 
 }
