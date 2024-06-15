@@ -27,9 +27,9 @@ public class ResourceSystem
             ? JsonLoadAction
             : null;
         var rawLoader = config.RawLoader;
-        // TODO: Set default value.
+        var defaultValue = config.FallbackResource;
 
-        var info = new ResourceInfo<T>(jsonLoaderFunction, rawLoader);
+        var info = new ResourceInfo<T>(jsonLoaderFunction, rawLoader, defaultValue);
 
         foreach (var (name, value) in config.InternalValues)
         {

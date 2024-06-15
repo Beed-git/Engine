@@ -1,6 +1,5 @@
 ﻿using Engine.Events;
 using Engine.Level;
-using ImGuiNET;
 using Microsoft.Extensions.Logging;
 using Microsoft.Xna.Framework;
 using System.Diagnostics;

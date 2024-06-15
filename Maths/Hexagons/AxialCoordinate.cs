@@ -57,6 +57,24 @@ public readonly struct AxialCoordinate
         return Distance(this, target);
     }
 
+    public static IEnumerable<AxialCoordinate> HexesInLine(AxialCoordinate start, AxialCoordinate end)
+    {
+        const float nudgeQ = 1e-6f;
+        const float nudgeR = 2e-6f;
+
+        var distance = AxialCoordinate.Distance(start, end);
+
+        for (int i = 0; i < distance; i++)
+        {
+            var amount = (1.0f / distance) * i;
+            var qLerp = float.Lerp(start.Q + nudgeQ, end.Q + nudgeQ, amount);
+            var rLerp = float.Lerp(start.R + nudgeR, end.R + nudgeR, amount);
+
+            var coordinate = Round(qLerp, rLerp);
+            yield return coordinate;
+        }
+    }
+
     public readonly override string ToString()
     {
         return $"({Q},{R},{S})";

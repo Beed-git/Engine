@@ -3,11 +3,11 @@
 namespace Engine.ECS.Components;
 
 [Component]
-public struct SpriteComponent
+public struct SpriteComponentOld
 {
     public Color Color;
 
-    public SpriteComponent(Color color)
+    public SpriteComponentOld(Color color)
     {
         Color = color;
     }

@@ -16,6 +16,11 @@ public readonly partial struct ResourceName
 
     public readonly string Id;
 
+    public ResourceName()
+    {
+        Id = string.Empty;
+    }
+
     public ResourceName(string name)
     {
         Id = Create(name);

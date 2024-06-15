@@ -50,6 +50,7 @@ public class Scene
     public void Add<T>(T obj)
         where T : class
     {
+        ArgumentNullException.ThrowIfNull(obj);
         _objects.Add(typeof(T), obj);
     }
 

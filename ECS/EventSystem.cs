@@ -1,12 +1,13 @@
 ﻿using Engine.Core.Internal;
 using Engine.Level;
+using Engine.Maths.Hexagons;
 
 namespace Engine.ECS;
 
 public class EventSystem
 {
     private readonly EventRegistry _events;
-    private readonly List<Action<Scene>> _queue;
+    private readonly Queue<Action<Scene>> _queue;
 
     internal EventSystem(EventRegistry events)
     {
@@ -24,16 +25,14 @@ public class EventSystem
         where T : struct
     {
         var @event = (Scene scene) => _events.Invoke(scene, payload);
-        _queue.Add(@event);
+        _queue.Enqueue(@event);
     }
 
     internal void RunEvents(Scene current)
     {
-        foreach (var action in _queue)
+        while (_queue.TryDequeue(out var action))
         {
             action.Invoke(current);
         }
-
-        _queue.Clear();
     }
 }

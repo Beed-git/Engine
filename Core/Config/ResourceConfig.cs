@@ -11,14 +11,14 @@ public class ResourceConfig<T>
     public ResourceConfig()
     {
         TypeKey = typeof(T).Name;
-        FallbackResourceName = null;
+        FallbackResource = default;
         InternalValues = [];
         RawLoader = null;
         FileLoaderFunction = null;
     }
 
     public string TypeKey { get; set; }
-    public ResourceName? FallbackResourceName { get; set; }
+    public T? FallbackResource { get; set; }
     public List<KeyValuePair<ResourceName, T>> InternalValues { get; init; }
     public IRawResourceLoader<T>? RawLoader { get; set; }
     internal FileLoaderDelegate<T>? FileLoaderFunction { get; private set; }

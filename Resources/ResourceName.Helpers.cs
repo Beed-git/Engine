@@ -60,6 +60,10 @@ file static class ResourceNameHelpers
             }
             if (ch == '.')
             {
+                if (startIndex == 1)
+                {
+                    throw new ResourceNameException(name, $"Internal resources are not allowed to use extensions therefore names including '.'s are disallowed.");
+                }
                 if (lastChar == '.')
                 {
                     throw new ResourceNameException(name, $"Resource name may not use .. to reach the parent directory.");
